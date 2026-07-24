@@ -22,3 +22,5 @@ CLAUDE.md
 /slither.config.json
 /soldeer.lock
 /REUSE.toml
+/script
+/test
