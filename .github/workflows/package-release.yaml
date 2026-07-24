@@ -1,0 +1,19 @@
+name: Package Release
+# Deploy repo: a manual `sol-v*` tag is the sole release trigger. The tag names
+# the version; rainix-tag-release deploys the clone-factory suite, regenerates +
+# verifies the deploy-pin snapshot, publishes rain-factory-deploy to Soldeer, and
+# commits the frozen snapshot back to main. Nothing publishes on merge, so
+# [package].version and the generated DEPLOY_TAG only ever move together.
+on:
+  push:
+    tags:
+      - sol-v*
+jobs:
+  release:
+    uses: rainlanguage/rainix/.github/workflows/rainix-tag-release.yaml@main
+    with:
+      soldeer-package: rain-factory-deploy
+      snapshot-generate-cmd: forge script ./script/BuildPointers.sol && forge fmt
+      # A single deployed contract, so one suite.
+      deploy-suites: '["clone-factory"]'
+    secrets: inherit
