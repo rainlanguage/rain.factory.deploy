@@ -24,11 +24,18 @@ import {
 } from "../../../src/generated/0_1_5/CloneFactory.pointers.sol";
 
 /// @title LibCloneFactoryDeployTaggedConstantsTest
-/// @notice Each frozen per-tag `CloneFactory` snapshot must be self-consistent
+/// @notice Each FROZEN per-tag `CloneFactory` snapshot must be self-consistent
 /// and reproducible: its recorded `BYTECODE_HASH` is the keccak of its recorded
 /// `RUNTIME_CODE`, and Zoltu-deploying its recorded `CREATION_CODE` lands at the
-/// recorded `DEPLOYED_ADDRESS` with the recorded codehash. A new release adds a
-/// tag import + a test pair here.
+/// recorded `DEPLOYED_ADDRESS` with the recorded codehash. Every tag here is a
+/// live production deployment on all five supported chains, so these stay for as
+/// long as the tags do — a tag whose record no longer reproduces is a tag a
+/// pinned consumer can no longer verify. Cutting a release adds a tag import +
+/// test pair here.
+///
+/// The rolling `candidate` snapshot is covered separately by
+/// `LibCloneFactoryDeployCandidateTest`, which additionally ties it to the
+/// current source.
 contract LibCloneFactoryDeployTaggedConstantsTest is Test {
     /// `keccak256(RUNTIME_CODE) == BYTECODE_HASH` for the tag — the pin is
     /// internally consistent.

@@ -54,7 +54,9 @@ nix develop .#sol-shell -c slither .
 # License/legal checks (REUSE compliance)
 nix develop .#sol-shell -c reuse lint
 
-# Regenerate the deploy pins for the current [package].version
+# Regenerate the rolling candidate snapshot + the pin lib. Run this after ANY
+# change to CloneFactory or the compiler config, or testCandidateSelfConsistent
+# fails. A clean tree must stay clean after running it.
 nix develop .#sol-shell -c bash -c 'forge script ./script/BuildPointers.sol && forge fmt'
 ```
 
@@ -69,13 +71,18 @@ as the `rain-factory` Soldeer dependency, so they are read under
   `ICloneableFactoryV3`. Uses OpenZeppelin `Clones.cloneDeterministic()`; there
   is no plain `clone()`.
 - `src/lib/LibCloneFactoryDeploy.sol` — Deterministic deployment address and
-  codehash constants (generated; aliases the current tag's
-  `src/generated/<tag>/` snapshot).
-- `src/generated/<tag>/CloneFactory.pointers.sol` — Frozen per-release
-  deploy-pin snapshots: creation code, runtime code, bytecode hash, deployed
-  address.
-- `script/BuildPointers.sol` — Regenerates the snapshot for the current
-  `[package].version` and the `LibCloneFactoryDeploy` alias.
+  codehash constants (generated; aliases the rolling `src/generated/candidate/`
+  snapshot).
+- `src/generated/candidate/CloneFactory.pointers.sol` — The rolling snapshot of
+  what the current source compiles to: creation code, runtime code, bytecode
+  hash, deployed address. Regenerated on every `BuildPointers` run.
+- `src/generated/<tag>/CloneFactory.pointers.sol` — Frozen release records
+  (`0_1_3`, `0_1_4`, `0_1_5`), each a copy of `candidate` frozen by a release
+  tag. Never regenerated.
+- `script/BuildPointers.sol` — Regenerates `candidate` and the
+  `LibCloneFactoryDeploy` alias. Never writes a numbered snapshot.
+- `script/cut-release.sh` — Freezes `candidate` as `src/generated/<tag>/` at
+  release time. The only thing that creates a numbered snapshot.
 - `script/Deploy.sol` — The Zoltu deploy script.
 
 ## Solidity Conventions
@@ -105,20 +112,32 @@ part of the release workflow.
 
 ## Releases and versioning
 
-This is a **deploy repo**, not a library repo, so nothing publishes on merge:
+This is a **deploy repo**, not a library repo, so nothing publishes on merge. It
+uses the **rolling-candidate** model:
 
-- `[package].version` in `foundry.toml` is the **last released** version (it
-  names the current `src/generated/<tag>/` snapshot), not a next-version slot. A
-  normal PR does not bump it; only a release moves it.
+- `src/generated/candidate/` is the rolling snapshot of what the current source
+  compiles to. `BuildPointers` rewrites it every run and `LibCloneFactoryDeploy`
+  aliases it, so the pins consumers import always describe this repo's source.
+  `testCandidateSelfConsistent` is the gate.
+- `[package].version` in `foundry.toml` **does not name a snapshot** and no
+  Solidity reads it. It is a placeholder that `rainix-tag-release` overwrites
+  from the pushed tag. Nothing has been released yet — Soldeer has zero
+  `rain-factory-deploy` revisions.
 - A human pushes a `sol-v<version>` tag, which runs `rainix-tag-release`: it
-  writes the version from the tag into `foundry.toml`, regenerates the snapshot
-  (`forge script ./script/BuildPointers.sol && forge fmt`), verifies the live
-  chains match the fresh pins with `forge test`, publishes `rain-factory-deploy`
-  to Soldeer, and commits the new snapshot back to `main`.
+  writes the version from the tag into `foundry.toml`, runs
+  `bash script/cut-release.sh` (which copies `candidate` to
+  `src/generated/<tag>/`, then regenerates), verifies the live chains match the
+  pins with `forge test`, publishes `rain-factory-deploy` to Soldeer, and
+  commits the new snapshot back to `main`.
 - The on-chain deploy happens **before** tagging, via the manual dispatch above;
   `rainix-tag-release` never broadcasts, it only attests.
 - Existing `src/generated/<tag>/` snapshots are frozen: a release adds a new tag
-  directory, it never edits or deletes an existing one. CI enforces this.
+  directory, it never edits or deletes an existing one. CI enforces this. The
+  gate's tag test is "three `_`-separated numeric parts", so `candidate/` is
+  outside it and free to roll.
+- Because the pin lib tracks `candidate`, changing `CloneFactory`'s bytecode
+  makes the five `LibCloneFactoryDeployProdTest` fork tests red until that
+  bytecode is deployed. That is deliberate: deploy before merge.
 
 ## CI
 

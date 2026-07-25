@@ -7,15 +7,21 @@ pragma solidity ^0.8.25;
 import {
     DEPLOYED_ADDRESS as CLONE_FACTORY_ADDR,
     BYTECODE_HASH as CLONE_FACTORY_HASH
-} from "../generated/0_1_5/CloneFactory.pointers.sol";
+} from "../generated/candidate/CloneFactory.pointers.sol";
 
 /// @title LibCloneFactoryDeploy
-/// @notice The deterministic Zoltu deploy address and code hash of the current
-/// `CloneFactory` release, aliased from the frozen per-release snapshot in
-/// `src/generated/<tag>/CloneFactory.pointers.sol` so that snapshot stays the
-/// single source of truth. Lets consumers verify/deploy against a precommitted
-/// address + hash rather than a registry.
+/// @notice The deterministic Zoltu deploy address and code hash of the
+/// `CloneFactory` the current source compiles to, aliased from the rolling
+/// `src/generated/candidate/CloneFactory.pointers.sol` snapshot so that snapshot
+/// stays the single source of truth. Lets consumers verify/deploy against a
+/// precommitted address + hash rather than a registry. A published release is a
+/// frozen copy of these bytes, so a consumer pinning a Soldeer version gets an
+/// immutable pin even though `candidate` rolls on `main`.
 library LibCloneFactoryDeploy {
+    /// @dev The snapshot dir these constants are aliased from. Always the
+    /// rolling `candidate`, never a version number.
+    string constant DEPLOY_TAG = "candidate";
+
     address constant CLONE_FACTORY_DEPLOYED_ADDRESS = CLONE_FACTORY_ADDR;
     bytes32 constant CLONE_FACTORY_DEPLOYED_CODEHASH = CLONE_FACTORY_HASH;
 }

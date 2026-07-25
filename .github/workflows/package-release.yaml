@@ -1,10 +1,11 @@
 name: Package Release
 # Deploy repo: a manual `sol-v*` tag is the sole release trigger. The tag names
-# the version; rainix-tag-release verifies prod exists at the regenerated pins,
-# publishes rain-factory-deploy to Soldeer, and commits the frozen snapshot back
-# to main. The on-chain deploy is separate and manual (rainix-manual-sol-artifacts
-# dispatch), run before tagging. Nothing publishes on merge, so [package].version
-# and the frozen src/generated/<tag>/ snapshot it names only ever move together.
+# the version; rainix-tag-release writes it to foundry.toml, runs cut-release.sh
+# to freeze src/generated/candidate/ as src/generated/<tag>/, verifies prod exists
+# at the pins, publishes rain-factory-deploy to Soldeer, and commits the frozen
+# snapshot back to main. The on-chain deploy is separate and manual
+# (rainix-manual-sol-artifacts dispatch), run before tagging. Nothing publishes on
+# merge; the pushed tag, not the committed [package].version, decides the release.
 on:
   push:
     tags:
@@ -14,5 +15,5 @@ jobs:
     uses: rainlanguage/rainix/.github/workflows/rainix-tag-release.yaml@main
     with:
       soldeer-package: rain-factory-deploy
-      snapshot-generate-cmd: forge script ./script/BuildPointers.sol && forge fmt
+      snapshot-generate-cmd: bash script/cut-release.sh
     secrets: inherit

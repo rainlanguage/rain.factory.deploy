@@ -1,5 +1,11 @@
 [package]
 name = "rain-factory-deploy"
+# `version` does NOT name a snapshot dir. Snapshots are cut by pushing a
+# `sol-vX.Y.Z` tag: rainix-tag-release writes that tag's version here and
+# `script/cut-release.sh` freezes `src/generated/candidate/` under it. Nothing
+# has ever been published from this repo (Soldeer has zero `rain-factory-deploy`
+# revisions), so this value is a placeholder inherited from rain.factory
+# numbering; it coincides with `src/generated/0_1_5/` by history, not by rule.
 version = "0.1.5"
 
 [profile.default]
@@ -18,13 +24,11 @@ evm_version = "cancun"
 bytecode_hash = "none"
 cbor_metadata = false
 
-# BuildPointers reads the version from foundry.toml and writes the generated
-# per-tag snapshots + the current-pin lib under src/. Nothing else in this repo
-# touches the filesystem.
-fs_permissions = [
-  { access = "read", path = "./foundry.toml" },
-  { access = "read-write", path = "./src" },
-]
+# BuildPointers writes the rolling src/generated/candidate/ snapshot and the
+# generated pin lib under src/. It no longer reads foundry.toml: the snapshot dir
+# is the constant `candidate`, and only script/cut-release.sh (bash, outside the
+# EVM) reads the version. Nothing else in this repo touches the filesystem.
+fs_permissions = [{ access = "read-write", path = "./src" }]
 libs = ["dependencies"]
 
 [fuzz]

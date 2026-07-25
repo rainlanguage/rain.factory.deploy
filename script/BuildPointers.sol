@@ -10,17 +10,20 @@ import {CloneFactory} from "../src/concrete/CloneFactory.sol";
 
 /// @title BuildPointers
 /// @notice Generates the deterministic-deploy pins for `CloneFactory`:
-///   1. A frozen per-release snapshot `src/generated/<tag>/CloneFactory.pointers.sol`
-///      (`BYTECODE_HASH`, `DEPLOYED_ADDRESS`, `CREATION_CODE`, `RUNTIME_CODE`) for
-///      the current `deployTag()`. Historical tags are never regenerated; a
-///      release bump writes a new `<tag>/` snapshot beside them.
-///   2. `src/lib/LibCloneFactoryDeploy.sol` — the current-release address and
-///      codehash, aliased from the current `deployTag()` snapshot so that
-///      snapshot stays the single source of truth (never a duplicated literal).
-///      Kept in `src/lib` so consumers' import path is stable across releases.
+///   1. The rolling `src/generated/candidate/CloneFactory.pointers.sol` snapshot
+///      (`BYTECODE_HASH`, `DEPLOYED_ADDRESS`, `CREATION_CODE`, `RUNTIME_CODE`) of
+///      whatever the current source compiles to. Regenerated in full on every
+///      run; committed so tests can assert source and snapshot agree.
+///   2. `src/lib/LibCloneFactoryDeploy.sol` — the address and codehash consumers
+///      import, aliased from the `candidate` snapshot so that snapshot stays the
+///      single source of truth (never a duplicated literal). Kept in `src/lib` so
+///      consumers' import path is stable across releases.
 ///
-/// Run as `forge script script/BuildPointers.sol`. Wired into the autopublish
-/// `soldeer-generate-cmd` so the pins regenerate born-green on each release.
+/// Numbered snapshots (`src/generated/0_1_5/`, …) are frozen release records.
+/// This script never writes one and never reads one: the only thing that creates
+/// a numbered dir is `script/cut-release.sh` copying `candidate` at release time.
+///
+/// Run as `forge script script/BuildPointers.sol`.
 contract BuildPointers is Script {
     string constant GEN_LIB_PATH = "src/lib/LibCloneFactoryDeploy.sol";
 
@@ -31,17 +34,16 @@ contract BuildPointers is Script {
 
     // REUSE-IgnoreEnd
 
-    /// @notice The canonical release tag. Read from `foundry.toml`
-    /// `[package].version` — the single source of truth — with dots converted to
-    /// underscores for the Solidity dir form (`0.1.3` -> `0_1_3`).
-    function deployTag() internal view returns (string memory) {
-        string memory version = vm.parseTomlString(vm.readFile("foundry.toml"), ".package.version");
-        bytes memory b = bytes(version);
-        bytes memory out = new bytes(b.length);
-        for (uint256 i = 0; i < b.length; i++) {
-            out[i] = b[i] == "." ? bytes1("_") : b[i];
-        }
-        return string(out);
+    /// @notice The rolling "current source" snapshot tag — always `candidate`,
+    /// never a version number. `src/generated/candidate/` is regenerated from the
+    /// current source on every run, so `LibCloneFactoryDeploy` tracks whatever the
+    /// source currently compiles to. A numbered snapshot is frozen only when a
+    /// release tag promotes `candidate` (see `script/cut-release.sh`), and is
+    /// never regenerated here.
+    string constant CANDIDATE_TAG = "candidate";
+
+    function deployTag() internal pure returns (string memory) {
+        return CANDIDATE_TAG;
     }
 
     function addressConstantString(address addr) internal pure returns (string memory) {
@@ -58,14 +60,14 @@ contract BuildPointers is Script {
     function run() external {
         LibRainDeploy.etchZoltuFactory(vm);
 
-        // A fresh next-version slot has no `<tag>/` dir yet, and `vm.writeFile`
-        // won't create one.
+        // A fresh checkout that has never generated has no `candidate/` dir yet,
+        // and `vm.writeFile` won't create one.
         vm.createDir(string.concat("src/generated/", deployTag()), true);
 
         bytes memory creationCode = type(CloneFactory).creationCode;
         address deployed = LibRainDeploy.deployZoltu(creationCode);
 
-        // Frozen per-tag snapshot.
+        // Rolling `candidate` snapshot of the current source.
         LibFs.buildFileForContract(
             vm,
             deployed,
@@ -81,14 +83,14 @@ contract BuildPointers is Script {
             )
         );
 
-        // Current-release pin lib.
+        // Consumer-facing pin lib.
         genLibCloneFactoryDeploy();
     }
 
     /// @notice (Re)generate `src/lib/LibCloneFactoryDeploy.sol`, aliasing the
-    /// current `deployTag()` snapshot's `DEPLOYED_ADDRESS` + `BYTECODE_HASH` as
-    /// the current-release constants — the snapshot stays the single source of
-    /// truth (never a duplicated literal). Emitted line-by-line to match the
+    /// `candidate` snapshot's `DEPLOYED_ADDRESS` + `BYTECODE_HASH` as the
+    /// consumer-facing constants — the snapshot stays the single source of truth
+    /// (never a duplicated literal). Emitted line-by-line to match the
     /// generated-file convention.
     function genLibCloneFactoryDeploy() internal {
         string memory importPath = string.concat("../generated/", deployTag(), "/CloneFactory.pointers.sol");
@@ -105,12 +107,18 @@ contract BuildPointers is Script {
         vm.writeLine(GEN_LIB_PATH, string.concat("} from \"", importPath, "\";"));
         vm.writeLine(GEN_LIB_PATH, "");
         vm.writeLine(GEN_LIB_PATH, "/// @title LibCloneFactoryDeploy");
-        vm.writeLine(GEN_LIB_PATH, "/// @notice The deterministic Zoltu deploy address and code hash of the current");
-        vm.writeLine(GEN_LIB_PATH, "/// `CloneFactory` release, aliased from the frozen per-release snapshot in");
-        vm.writeLine(GEN_LIB_PATH, "/// `src/generated/<tag>/CloneFactory.pointers.sol` so that snapshot stays the");
-        vm.writeLine(GEN_LIB_PATH, "/// single source of truth. Lets consumers verify/deploy against a precommitted");
-        vm.writeLine(GEN_LIB_PATH, "/// address + hash rather than a registry.");
+        vm.writeLine(GEN_LIB_PATH, "/// @notice The deterministic Zoltu deploy address and code hash of the");
+        vm.writeLine(GEN_LIB_PATH, "/// `CloneFactory` the current source compiles to, aliased from the rolling");
+        vm.writeLine(GEN_LIB_PATH, "/// `src/generated/candidate/CloneFactory.pointers.sol` snapshot so that snapshot");
+        vm.writeLine(GEN_LIB_PATH, "/// stays the single source of truth. Lets consumers verify/deploy against a");
+        vm.writeLine(GEN_LIB_PATH, "/// precommitted address + hash rather than a registry. A published release is a");
+        vm.writeLine(GEN_LIB_PATH, "/// frozen copy of these bytes, so a consumer pinning a Soldeer version gets an");
+        vm.writeLine(GEN_LIB_PATH, "/// immutable pin even though `candidate` rolls on `main`.");
         vm.writeLine(GEN_LIB_PATH, "library LibCloneFactoryDeploy {");
+        vm.writeLine(GEN_LIB_PATH, "    /// @dev The snapshot dir these constants are aliased from. Always the");
+        vm.writeLine(GEN_LIB_PATH, "    /// rolling `candidate`, never a version number.");
+        vm.writeLine(GEN_LIB_PATH, string.concat("    string constant DEPLOY_TAG = \"", deployTag(), "\";"));
+        vm.writeLine(GEN_LIB_PATH, "");
         vm.writeLine(GEN_LIB_PATH, "    address constant CLONE_FACTORY_DEPLOYED_ADDRESS = CLONE_FACTORY_ADDR;");
         vm.writeLine(GEN_LIB_PATH, "    bytes32 constant CLONE_FACTORY_DEPLOYED_CODEHASH = CLONE_FACTORY_HASH;");
         vm.writeLine(GEN_LIB_PATH, "}");
