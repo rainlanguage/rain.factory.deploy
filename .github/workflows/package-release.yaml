@@ -4,7 +4,7 @@ name: Package Release
 # publishes rain-factory-deploy to Soldeer, and commits the frozen snapshot back
 # to main. The on-chain deploy is separate and manual (rainix-manual-sol-artifacts
 # dispatch), run before tagging. Nothing publishes on merge, so [package].version
-# and the generated DEPLOY_TAG only ever move together.
+# and the frozen src/generated/<tag>/ snapshot it names only ever move together.
 on:
   push:
     tags:

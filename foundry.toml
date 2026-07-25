@@ -18,12 +18,10 @@ evm_version = "cancun"
 bytecode_hash = "none"
 cbor_metadata = false
 
-# Build metadata used for testing rain meta aware contracts in this folder rather
-# than expose ffi to forge.
+# BuildPointers reads the version from foundry.toml and writes the generated
+# per-tag snapshots + the current-pin lib under src/. Nothing else in this repo
+# touches the filesystem.
 fs_permissions = [
-  { access = "read", path = "./meta" },
-  # BuildPointers reads the version from foundry.toml and writes the generated
-  # per-tag snapshots + the current-pin lib under src/.
   { access = "read", path = "./foundry.toml" },
   { access = "read-write", path = "./src" },
 ]
