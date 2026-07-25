@@ -26,3 +26,16 @@ Nothing publishes on merge, so `[package].version` and the frozen
 `src/generated/<tag>/` snapshot it names only ever move together.
 
 See rainlanguage/rain.factory#46 for the split rationale.
+
+## Audit
+
+This repo has never been audited under its own name. It carries two
+**inherited** Protofire reports: audits of `rain.factory`, performed before the
+split, of the source that built some of the snapshots pinned here. They are
+prefixed `inherited.` and their provenance and per-snapshot coverage are
+recorded in [`audit/protofire/inherited.json`](audit/protofire/inherited.json) —
+read that file, not this section, for what each report covers.
+
+Coverage is partial: **`src/generated/0_1_5/` — the `ICloneableFactoryV3`
+rewrite, and the pin `LibCloneFactoryDeploy` currently aliases and deploys on
+every live chain — is covered by neither report and has never been audited.**

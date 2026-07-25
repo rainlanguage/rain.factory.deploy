@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "records": [
+    {
+      "pdf": "inherited.rain.factory.v0.1.1-r2.0.may-2026.pdf",
+      "sha256": "6c4ecf9f47ebf96cda58a856901ccd25dd83b3a8b0e8524a00adb60f149894ca",
+      "report": "r2.0",
+      "reportDate": "2026-05-27",
+      "source": { "org": "rainlanguage", "repo": "rain.factory", "ref": "v0.1.1" },
+      "covers": [
+        {
+          "snapshot": "src/generated/0_1_3",
+          "bytecodeHash": "0xf21b813c7075a1621285df3a8369d0652c31ea80cb807be1aaadafeecd134475"
+        },
+        {
+          "snapshot": "src/generated/0_1_4",
+          "bytecodeHash": "0xf21b813c7075a1621285df3a8369d0652c31ea80cb807be1aaadafeecd134475"
+        }
+      ],
+      "basis": "rain.factory v0.1.1 src/concrete/CloneFactory.sol (blob acbbcf7e7b7cd06eb7646e1ff889ddec8cf7b131) rebuilt under rainix 53e96a7d sol-shell (solc 0.8.25, 100000 runs, cancun, bytecode_hash=none, OZ 5.6.1) reproduces both snapshots' CREATION_CODE and RUNTIME_CODE byte-for-byte. The address 0x444acC29d63fa643E8adCC35FD9aa6DE111dCb39 and codehash are themselves constants inside the audited src/lib/LibCloneFactoryDeploy.sol, a named scope item of the report."
+    },
+    {
+      "pdf": "inherited.rain.factory.1a92a86.feb-2026.pdf",
+      "sha256": "ffb52e9f5d84eaa66c35b760aaf4b8d1ebcd6ac10b2da1ab601cc1f3f272ec61",
+      "report": "r1.0",
+      "reportDate": "2026-02-11",
+      "source": {
+        "org": "rainlanguage",
+        "repo": "rain.factory",
+        "ref": "1a92a8688249aa5a8f4e82d5ed584604515f1ea0"
+      },
+      "covers": [],
+      "supersededBy": "inherited.rain.factory.v0.1.1-r2.0.may-2026.pdf",
+      "basis": "Audits an earlier state of the same ICloneableFactoryV2 source (blob 3299755d9db2bf268581b9e80c455d3b85dbb0ad) compiled against OpenZeppelin 5.5.0 (git submodule), not the 5.6.1 soldeer pin the snapshots build from. No snapshot in this repo builds from it. r2.0's Reviews table re-lists this 11/02/26 pass, so r2.0 subsumes it. Retained as audit history."
+    }
+  ]
+}
