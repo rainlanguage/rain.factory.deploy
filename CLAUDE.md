@@ -5,9 +5,11 @@ code in this repository.
 
 ## Project Overview
 
-rain.factory.deploy is a Solidity library providing EIP1167 minimal proxy (clone)
-factory contracts for the Rain ecosystem. The core contract `CloneFactory`
-clones any contract implementing `ICloneableV2` and atomically initializes it.
+rain.factory.deploy is the **deployment** half of `rain.factory`: the concrete
+`CloneFactory` contract plus its deployed address + codehash pins. The core
+contract `CloneFactory` clones any contract implementing `ICloneableV2` (an
+interface it imports from the `rain-factory` Soldeer package) and atomically
+initializes it.
 
 License: LicenseRef-DCL-1.0 (DecentraLicense). All source files must include
 SPDX headers.
@@ -54,38 +56,36 @@ forge build
 
 ## Architecture
 
-- `src/interface/ICloneableV2.sol` — Interface for cloneable contracts.
-  `initialize(bytes)` must return `ICLONEABLE_V2_SUCCESS` (keccak256 hash) on
-  success.
-- `src/interface/ICloneableFactoryV2.sol` — Legacy factory interface: the
-  nonce-dependent `clone(address, bytes)` and `NewClone` event. Superseded by
-  `ICloneableFactoryV3` for `CloneFactory`; still published for other consumers.
-- `src/interface/ICloneableFactoryV3.sol` — Current factory interface.
-  Deterministic-only: `cloneDeterministic(address, bytes, bytes32)` +
-  `predictDeterministicAddress(address, bytes32, address)` (CREATE2, salt
-  namespaced by `msg.sender`) and its own `NewClone` event. Standalone — does
-  NOT extend `ICloneableFactoryV2`, because the non-deterministic `clone()` was
-  intentionally dropped.
+The `ICloneable*` interfaces are NOT in this repo. They live in
+[`rain.factory`](https://github.com/rainlanguage/rain.factory) and arrive here
+as the `rain-factory` Soldeer dependency, so they are read under
+`dependencies/rain-factory-<version>/src/interface/`.
+
 - `src/concrete/CloneFactory.sol` — The single concrete implementation of
   `ICloneableFactoryV3`. Uses OpenZeppelin `Clones.cloneDeterministic()`; there
   is no plain `clone()`.
 - `src/lib/LibCloneFactoryDeploy.sol` — Deterministic deployment address and
   codehash constants (generated; aliases the current tag's
   `src/generated/<tag>/` snapshot).
-- `src/interface/deprecated/` — Legacy interfaces (`ICloneableV1`,
-  `ICloneableFactoryV1`, `IFactory`). Do not use for new work.
+- `src/generated/<tag>/CloneFactory.pointers.sol` — Frozen per-release
+  deploy-pin snapshots: creation code, runtime code, bytecode hash, deployed
+  address.
+- `script/BuildPointers.sol` — Regenerates the snapshot for the current
+  `[package].version` and the `LibCloneFactoryDeploy` alias.
+- `script/Deploy.sol` — The Zoltu deploy script.
 
 ## Solidity Conventions
 
-- Solidity version: concrete contracts pin `=0.8.25` (exact); interface and
-  library files float `^` (the interfaces use `^0.8.18`) so downstream soldeer
-  consumers on a different `0.8.x` can still compile them
+- Solidity version: concrete contracts, scripts and tests pin `=0.8.25` (exact);
+  library and generated files float `^0.8.25` so downstream soldeer consumers on
+  a different `0.8.x` can still compile them
 - EVM target: Cancun
 - Optimizer: enabled, 100,000 runs
 - No CBOR metadata (`cbor_metadata = false`, `bytecode_hash = "none"`)
 - Dependencies are managed with Soldeer (`[dependencies]` in `foundry.toml` +
   `soldeer.lock`, vendored under `dependencies/`): forge-std,
-  @openzeppelin-contracts, rain-extrospection, rain-deploy, rain-sol-codegen
+  @openzeppelin-contracts, rain-extrospection, rain-deploy, rain-sol-codegen,
+  rain-factory
 
 ## Deployment
 
