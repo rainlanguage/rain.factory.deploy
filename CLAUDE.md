@@ -70,7 +70,8 @@ as the `rain-factory` Soldeer dependency, so they are read under
   is no plain `clone()`.
 - `src/lib/LibCloneFactoryDeploy.sol` — Deterministic deployment address and
   codehash constants (generated; aliases the current tag's
-  `src/generated/<tag>/` snapshot).
+  `src/generated/<tag>/` snapshot). `DEPLOY_TAG` names that snapshot, so which
+  release the pins came from is a readable constant rather than an import path.
 - `src/generated/<tag>/CloneFactory.pointers.sol` — Frozen per-release
   deploy-pin snapshots: creation code, runtime code, bytecode hash, deployed
   address.

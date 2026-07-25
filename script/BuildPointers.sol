@@ -88,10 +88,14 @@ contract BuildPointers is Script {
     /// @notice (Re)generate `src/lib/LibCloneFactoryDeploy.sol`, aliasing the
     /// current `deployTag()` snapshot's `DEPLOYED_ADDRESS` + `BYTECODE_HASH` as
     /// the current-release constants — the snapshot stays the single source of
-    /// truth (never a duplicated literal). Emitted line-by-line to match the
-    /// generated-file convention.
+    /// truth (never a duplicated literal). Also emits that tag as `DEPLOY_TAG`,
+    /// so which snapshot the pins came from is a readable constant rather than
+    /// an import path, and `LibCloneFactoryDeployTagTest` can assert it against
+    /// `[package].version`. Emitted line-by-line to match the generated-file
+    /// convention.
     function genLibCloneFactoryDeploy() internal {
-        string memory importPath = string.concat("../generated/", deployTag(), "/CloneFactory.pointers.sol");
+        string memory tag = deployTag();
+        string memory importPath = string.concat("../generated/", tag, "/CloneFactory.pointers.sol");
         vm.writeFile(GEN_LIB_PATH, "");
         vm.writeLine(GEN_LIB_PATH, GEN_SPDX_LICENSE);
         vm.writeLine(GEN_LIB_PATH, GEN_SPDX_COPYRIGHT);
@@ -111,6 +115,10 @@ contract BuildPointers is Script {
         vm.writeLine(GEN_LIB_PATH, "/// single source of truth. Lets consumers verify/deploy against a precommitted");
         vm.writeLine(GEN_LIB_PATH, "/// address + hash rather than a registry.");
         vm.writeLine(GEN_LIB_PATH, "library LibCloneFactoryDeploy {");
+        vm.writeLine(GEN_LIB_PATH, "    /// @dev The `src/generated/<tag>/` snapshot the pins below are aliased");
+        vm.writeLine(GEN_LIB_PATH, "    /// from, i.e. `[package].version` with dots as underscores.");
+        vm.writeLine(GEN_LIB_PATH, string.concat('    string constant DEPLOY_TAG = "', tag, '";'));
+        vm.writeLine(GEN_LIB_PATH, "");
         vm.writeLine(GEN_LIB_PATH, "    address constant CLONE_FACTORY_DEPLOYED_ADDRESS = CLONE_FACTORY_ADDR;");
         vm.writeLine(GEN_LIB_PATH, "    bytes32 constant CLONE_FACTORY_DEPLOYED_CODEHASH = CLONE_FACTORY_HASH;");
         vm.writeLine(GEN_LIB_PATH, "}");

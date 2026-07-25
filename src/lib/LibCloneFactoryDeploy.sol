@@ -16,6 +16,10 @@ import {
 /// single source of truth. Lets consumers verify/deploy against a precommitted
 /// address + hash rather than a registry.
 library LibCloneFactoryDeploy {
+    /// @dev The `src/generated/<tag>/` snapshot the pins below are aliased
+    /// from, i.e. `[package].version` with dots as underscores.
+    string constant DEPLOY_TAG = "0_1_5";
+
     address constant CLONE_FACTORY_DEPLOYED_ADDRESS = CLONE_FACTORY_ADDR;
     bytes32 constant CLONE_FACTORY_DEPLOYED_CODEHASH = CLONE_FACTORY_HASH;
 }
