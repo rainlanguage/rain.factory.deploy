@@ -16,9 +16,11 @@ deploy pins. Two unrelated contracts live here, sharing only that deploy model:
   from the `rain-deploy` Soldeer package alongside `LibAddressRegistry` (the
   reader) and the cross-network deploy gate. An immutable root authority binds a
   `bytes32` name to an address once and forever; reading an unbound name
-  reverts. It has no deploy pins yet — `ADDRESS_REGISTRY_ROOT` is a placeholder
-  and the root is part of the creation code, so no snapshot can exist until a
-  human supplies the real value.
+  reverts. Its address and code hash are pinned in `rain-deploy`'s
+  `LibAddressRegistry`, not in a `src/generated/<tag>/` snapshot here — those
+  pins come from the current placeholder build, because `ADDRESS_REGISTRY_ROOT`
+  is a constant in the creation code and no snapshot should be frozen until a
+  human supplies the real root.
 
 License: LicenseRef-DCL-1.0 (DecentraLicense). All source files must include
 SPDX headers.
@@ -120,11 +122,17 @@ A deploy is a human-dispatched run of the `Manual sol artifacts` workflow
 (`workflow_dispatch` → `rainix-manual-sol-artifacts`), never a merge and never
 part of the release workflow.
 
-`AddressRegistry` is not deployable yet and has no suite in `script/Deploy.sol`,
-no `src/generated/<tag>/` snapshot and no pin lib. Its root authority is a
-placeholder, and the root is part of the creation code, so any snapshot
-generated now would pin an address nobody can use. Supplying the real root is
-what unblocks generating them.
+`AddressRegistry` is not deployable yet: it has no suite in `script/Deploy.sol`
+and no `src/generated/<tag>/` snapshot. Its root authority is a placeholder, and
+the root is part of the creation code, so a snapshot frozen now would pin an
+address nobody can use — and `src/generated/<tag>/` is append-only, so it could
+not be corrected afterwards.
+
+Its address and code hash are pinned in `rain-deploy`'s `LibAddressRegistry`,
+derived from the same placeholder build.
+`test/src/concrete/AddressRegistryDeployPins.t.sol` fails if this source and
+those pins disagree, so supplying the real root means re-deriving them in the
+same change.
 
 ## Releases and versioning
 
