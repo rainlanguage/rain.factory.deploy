@@ -5,11 +5,20 @@ code in this repository.
 
 ## Project Overview
 
-rain.factory.deploy is the **deployment** half of `rain.factory`: the concrete
-`CloneFactory` contract plus its deployed address + codehash pins. The core
-contract `CloneFactory` clones any contract implementing `ICloneableV2` (an
-interface it imports from the `rain-factory` Soldeer package) and atomically
-initializes it.
+rain.factory.deploy holds Rain's Zoltu-deployed concrete contracts and their
+deploy pins. Two unrelated contracts live here, sharing only that deploy model:
+
+- `CloneFactory` — the **deployment** half of `rain.factory`: the concrete
+  contract plus its deployed address + codehash pins. It clones any contract
+  implementing `ICloneableV2` (an interface it imports from the `rain-factory`
+  Soldeer package) and atomically initializes it.
+- `AddressRegistry` — the implementation of `IAddressRegistryV1`, which arrives
+  from the `rain-deploy` Soldeer package alongside `LibAddressRegistry` (the
+  reader) and the cross-network deploy gate. An immutable root authority binds a
+  `bytes32` name to an address once and forever; reading an unbound name
+  reverts. It has no deploy pins yet — `ADDRESS_REGISTRY_ROOT` is a placeholder
+  and the root is part of the creation code, so no snapshot can exist until a
+  human supplies the real value.
 
 License: LicenseRef-DCL-1.0 (DecentraLicense). All source files must include
 SPDX headers.
@@ -68,6 +77,14 @@ as the `rain-factory` Soldeer dependency, so they are read under
 - `src/concrete/CloneFactory.sol` — The single concrete implementation of
   `ICloneableFactoryV3`. Uses OpenZeppelin `Clones.cloneDeterministic()`; there
   is no plain `clone()`.
+- `src/concrete/AddressRegistry.sol` — The single concrete implementation of
+  `IAddressRegistryV1` (from the `rain-deploy` Soldeer package). Two functions,
+  `register` and `get`, and nothing else: adding rotation, removal, an admin
+  surface or a non-reverting reader would destroy the write-once property the
+  contract exists for. `ADDRESS_REGISTRY_ROOT` is a placeholder until a human
+  supplies the real root; because it is a constant in the creation code, it is
+  part of the contract's identity, and `rain-deploy`'s `LibAddressRegistry` pins
+  must be re-derived whenever it changes.
 - `src/lib/LibCloneFactoryDeploy.sol` — Deterministic deployment address and
   codehash constants (generated; aliases the current tag's
   `src/generated/<tag>/` snapshot).
@@ -102,6 +119,12 @@ returns: Arbitrum One, Base, Base Sepolia, Flare and Polygon.
 A deploy is a human-dispatched run of the `Manual sol artifacts` workflow
 (`workflow_dispatch` → `rainix-manual-sol-artifacts`), never a merge and never
 part of the release workflow.
+
+`AddressRegistry` is not deployable yet and has no suite in `script/Deploy.sol`,
+no `src/generated/<tag>/` snapshot and no pin lib. Its root authority is a
+placeholder, and the root is part of the creation code, so any snapshot
+generated now would pin an address nobody can use. Supplying the real root is
+what unblocks generating them.
 
 ## Releases and versioning
 
