@@ -2,8 +2,12 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.5/src/interface/ICloneableV2.sol";
-import {ICloneableFactoryV3} from "rain-factory-0.1.5/src/interface/ICloneableFactoryV3.sol";
+import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.7/src/interface/ICloneableV2.sol";
+// `ICloneableFactoryV3` is imported for the `@inheritdoc` references on the
+// functions it declares; `ICloneableFactoryV4` inherits rather than redeclares
+// them, so the tag must name V3 and V3 must be in scope here.
+import {ICloneableFactoryV3} from "rain-factory-0.1.7/src/interface/ICloneableFactoryV3.sol";
+import {ICloneableFactoryV4} from "rain-factory-0.1.7/src/interface/ICloneableFactoryV4.sol";
 import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 
 /// Thrown when an implementation has zero code size which is always a mistake.
@@ -13,15 +17,21 @@ error ZeroImplementationCodeSize();
 error InitializationFailed();
 
 /// @title CloneFactory
-/// @notice A fairly minimal implementation of `ICloneableFactoryV3` that uses
+/// @notice A fairly minimal implementation of `ICloneableFactoryV4` that uses
 /// Open Zeppelin `Clones` to create EIP1167 clones of a reference bytecode. The
 /// reference bytecode MUST implement `ICloneableV2`.
 ///
-/// `cloneDeterministic` deploys via `CREATE2` at a pre-computable address
-/// (`predictDeterministicAddress`), namespacing the caller-supplied salt by
-/// `msg.sender` so a caller's `(implementation, salt)` address cannot be squatted
-/// by another account.
-contract CloneFactory is ICloneableFactoryV3 {
+/// Two deterministic entry points, both `CREATE2`, differing only in the salt:
+///
+/// - `cloneDeterministic` / `predictDeterministicAddress` namespace the
+///   caller-supplied salt by `msg.sender` (see `_effectiveSalt`) so a caller's
+///   `(implementation, salt)` address cannot be squatted by another account.
+/// - `cloneDeterministicOpenSalt` / `predictDeterministicAddressOpenSalt` use
+///   the caller-supplied salt verbatim, so the address carries no identity and
+///   anyone can deploy it. This is only safe for implementations whose
+///   `initialize` takes no caller-controlled authority — read the warning on
+///   `ICloneableFactoryV4.cloneDeterministicOpenSalt` before using it.
+contract CloneFactory is ICloneableFactoryV4 {
     /// @inheritdoc ICloneableFactoryV3
     function cloneDeterministic(address implementation, bytes calldata data, bytes32 salt) external returns (address) {
         _requireImplementationCode(implementation);
@@ -37,6 +47,24 @@ contract CloneFactory is ICloneableFactoryV3 {
         returns (address)
     {
         return Clones.predictDeterministicAddress(implementation, _effectiveSalt(deployer, salt), address(this));
+    }
+
+    /// @inheritdoc ICloneableFactoryV4
+    function cloneDeterministicOpenSalt(address implementation, bytes calldata data, bytes32 salt)
+        external
+        returns (address)
+    {
+        _requireImplementationCode(implementation);
+        // CREATE2 clone at the caller-supplied salt verbatim: no `_effectiveSalt`
+        // namespacing, so the address is the same for every caller and there is
+        // no identity in the derivation.
+        address child = Clones.cloneDeterministic(implementation, salt);
+        return _initializeClone(implementation, child, data, salt);
+    }
+
+    /// @inheritdoc ICloneableFactoryV4
+    function predictDeterministicAddressOpenSalt(address implementation, bytes32 salt) external view returns (address) {
+        return Clones.predictDeterministicAddress(implementation, salt, address(this));
     }
 
     /// @dev The CREATE2 salt actually used: the caller-supplied `salt` namespaced
@@ -69,7 +97,7 @@ contract CloneFactory is ICloneableFactoryV3 {
     {
         emit NewClone(msg.sender, implementation, child, salt, data);
         // Checking the return value of initialize is mandatory as per
-        // ICloneableFactoryV3.
+        // ICloneableFactoryV3 and ICloneableFactoryV4.
         if (ICloneableV2(child).initialize(data) != ICLONEABLE_V2_SUCCESS) {
             revert InitializationFailed();
         }

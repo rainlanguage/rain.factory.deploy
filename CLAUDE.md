@@ -68,8 +68,23 @@ as the `rain-factory` Soldeer dependency, so they are read under
 `dependencies/rain-factory-<version>/src/interface/`.
 
 - `src/concrete/CloneFactory.sol` — The single concrete implementation of
-  `ICloneableFactoryV3`. Uses OpenZeppelin `Clones.cloneDeterministic()`; there
-  is no plain `clone()`.
+  `ICloneableFactoryV4`. Uses OpenZeppelin `Clones.cloneDeterministic()` for
+  both deterministic entry points; there is no plain `clone()`. The two entry
+  points differ ONLY in the salt they pass to `Clones`:
+  - `cloneDeterministic` / `predictDeterministicAddress` (declared on
+    `ICloneableFactoryV3`, which V4 extends) namespace the caller-supplied salt
+    by `msg.sender` via `_effectiveSalt`, so a caller's `(implementation, salt)`
+    address cannot be reached by another account.
+  - `cloneDeterministicOpenSalt` / `predictDeterministicAddressOpenSalt` pass
+    the caller-supplied salt verbatim, so the address carries no identity and
+    anyone can deploy it. Only safe for implementations whose `initialize`
+    takes no caller-controlled authority — the NatSpec on
+    `ICloneableFactoryV4.cloneDeterministicOpenSalt` is the spec for that
+    condition, and it lives in rain.factory, not here.
+
+  Both share `_requireImplementationCode` and `_initializeClone`, so
+  clone-and-initialize is atomic and the failure modes are identical across the
+  two.
 - `src/lib/LibCloneFactoryDeploy.sol` — Deterministic deployment address and
   codehash constants (generated; aliases the rolling `src/generated/candidate/`
   snapshot).

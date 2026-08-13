@@ -6,6 +6,7 @@ import {Test} from "forge-std-1.16.1/src/Test.sol";
 import {LibRainDeploy} from "rain-deploy-0.1.3/src/lib/LibRainDeploy.sol";
 import {LibCloneFactoryDeploy} from "../../../src/lib/LibCloneFactoryDeploy.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
+import {TestCloneable} from "../concrete/TestCloneable.sol";
 import {
     BYTECODE_HASH as CLONE_FACTORY_BYTECODE_HASH_CANDIDATE,
     DEPLOYED_ADDRESS as CLONE_FACTORY_DEPLOYED_ADDRESS_CANDIDATE,
@@ -60,5 +61,36 @@ contract LibCloneFactoryDeployCandidateTest is Test {
         assertEq(deployed, CLONE_FACTORY_DEPLOYED_ADDRESS_CANDIDATE);
         assertEq(deployed.codehash, CLONE_FACTORY_BYTECODE_HASH_CANDIDATE);
         assertEq(keccak256(deployed.code), CLONE_FACTORY_BYTECODE_HASH_CANDIDATE);
+    }
+
+    /// The candidate's recorded bytecode must actually SERVE all four
+    /// deterministic entry points, so the pin cannot record an address for
+    /// bytecode that is missing one — which is what a frozen release copied from
+    /// this candidate would then publish. Proved by Zoltu-deploying the recorded
+    /// `CREATION_CODE` (NOT `new CloneFactory()`, so the assertion is about the
+    /// snapshot rather than the source) and calling every entry point on the
+    /// result through the `ICloneableFactoryV4` ABI: an entry point the
+    /// dispatcher does not expose falls through to the (absent) fallback and
+    /// reverts here. A byte scan of the runtime code would NOT prove this — a
+    /// selector can sit in constant data without being dispatchable.
+    function testCandidateDeployedBytecodeServesBothEntryPoints() external {
+        LibRainDeploy.etchZoltuFactory(vm);
+        CloneFactory factory = CloneFactory(LibRainDeploy.deployZoltu(CLONE_FACTORY_CREATION_CODE_CANDIDATE));
+        TestCloneable implementation = new TestCloneable();
+
+        bytes32 salt = keccak256("rain.factory.deploy.candidate.entry.points");
+        bytes memory data = hex"f100dedb0a75";
+
+        address predictedNamespaced = factory.predictDeterministicAddress(address(implementation), salt, address(this));
+        address predictedOpen = factory.predictDeterministicAddressOpenSalt(address(implementation), salt);
+        assertTrue(predictedNamespaced != predictedOpen);
+
+        address childNamespaced = factory.cloneDeterministic(address(implementation), data, salt);
+        address childOpen = factory.cloneDeterministicOpenSalt(address(implementation), data, salt);
+
+        assertEq(childNamespaced, predictedNamespaced);
+        assertEq(childOpen, predictedOpen);
+        assertEq(TestCloneable(childNamespaced).sData(), data);
+        assertEq(TestCloneable(childOpen).sData(), data);
     }
 }

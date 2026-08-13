@@ -10,6 +10,31 @@ here as the `rain-factory` Soldeer package. Consumers that need only the
 interfaces depend on `rain-factory`; consumers that need the deployed
 address/codehash pins depend on `rain-factory-deploy`.
 
+## Entry points
+
+`CloneFactory` implements `ICloneableFactoryV4`, letting any compatible
+`ICloneableV2` contract be cloned as an EIP1167 proxy and initialized
+atomically. It offers two deterministic (`CREATE2`) entry points that differ
+only in how the salt is derived:
+
+- `cloneDeterministic` namespaces the caller-supplied salt by `msg.sender`, so
+  nobody else can reach the caller's address — but the deploying account is
+  baked into that address forever.
+- `cloneDeterministicOpenSalt` uses the caller-supplied salt verbatim, so the
+  address is a function of `(implementation, salt)` and the factory alone: every
+  account reaches the same address, and so can anyone. That also makes it the
+  same address across chains, but only where both the factory and the
+  implementation are themselves at the same address on each chain — `CREATE2`
+  hashes the factory, and the EIP1167 creation code it hashes contains the
+  implementation.
+
+Open-salt is ONLY safe for implementations whose `initialize` takes no
+caller-controlled authority: clone-and-initialize is atomic and runs once, so
+the first deployer's `data` sets the clone's authority permanently, with no
+recovery. Read the NatSpec on
+`ICloneableFactoryV4.cloneDeterministicOpenSalt` (in `rain.factory`) before
+using it — the qualifying condition is stated there, not here.
+
 ## Snapshots
 
 `src/generated/` holds two kinds of deploy-pin snapshot, both with the same file
