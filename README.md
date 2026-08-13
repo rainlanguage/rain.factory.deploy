@@ -22,7 +22,10 @@ only in how the salt is derived:
   address, but the deploying account is baked into it forever and `data` is
   outside the derivation.
 - `cloneDeterministicOpenSalt` derives the salt as
-  `keccak256(abi.encode(ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN, salt, keccak256(data)))`,
+  `keccak256(abi.encode(ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN, salt, keccak256(data)))`
+  — the domain constant being
+  `keccak256("ICloneableFactoryV4.cloneDeterministicOpenSalt")`, declared in
+  `rain.factory` so third parties recompute the address rather than trust it —
   so the address commits to WHAT was deployed and to nothing about who deployed
   it: it is a function of `(factory, implementation, salt, data)` alone. Every
   account reaches the same address, and so can anyone. That also makes it the

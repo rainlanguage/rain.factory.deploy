@@ -148,8 +148,11 @@ contract CloneFactoryCloneDeterministicOpenSaltTest is Test {
     /// cannot reach, block or collide with an address that `cloneDeterministic`
     /// promised to a specific caller, or vice versa.
     ///
-    /// This is the broad statement; the reachable case that actually
-    /// discriminates the domain separator is the next test.
+    /// This is the broad statement, and on its own it is weak: a collision it
+    /// could catch needs a keccak256 collision, so no realistic mutation of the
+    /// derivation makes it fail. It is kept as the plain form of the interface's
+    /// claim. The reachable case that actually discriminates the domain
+    /// separator is the next test.
     function testCloneDeterministicOpenSaltDiffersFromSenderNamespaced(
         address implementation,
         bytes memory data,
@@ -182,6 +185,15 @@ contract CloneFactoryCloneDeterministicOpenSaltTest is Test {
     /// restating `abi.encode`. Remove
     /// `ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN` from `_effectiveOpenSalt` and
     /// this test fails.
+    ///
+    /// The single equation
+    /// `keccak256(abi.encode(deployer, nsSalt)) == keccak256(abi.encode(openSalt, keccak256(data)))`
+    /// is the whole of the reachable overlap, and this test closes it, so the
+    /// mirror framing needs no second test: a victim who picks their namespaced
+    /// `nsSalt` as `keccak256(P)` for reproducible bytes `P` — an ordinary
+    /// choice — would, untagged, be reachable by an attacker calling
+    /// `cloneDeterministicOpenSalt(implementation, P, bytes32(uint256(uint160(victim))))`.
+    /// Same two unknowns, solved from the other side, closed by the same word.
     function testCloneDeterministicOpenSaltDisjointFromNamespacedAtLeftPaddedAddressSalt(
         address attacker,
         bytes memory data,
