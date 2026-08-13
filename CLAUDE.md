@@ -81,8 +81,10 @@ as the `rain-factory` Soldeer dependency, so they are read under
   tag. Never regenerated.
 - `script/BuildPointers.sol` — Regenerates `candidate` and the
   `LibCloneFactoryDeploy` alias. Never writes a numbered snapshot.
-- `script/cut-release.sh` — Freezes `candidate` as `src/generated/<tag>/` at
-  release time. The only thing that creates a numbered snapshot.
+- `script/cut-release.sh` — Regenerates `candidate`, then freezes it as
+  `src/generated/<tag>/` at release time. The only thing that creates a numbered
+  snapshot. Regenerating first is what makes the frozen record equal to the pins
+  the release actually publishes.
 - `script/Deploy.sol` — The Zoltu deploy script.
 
 ## Solidity Conventions
@@ -125,10 +127,10 @@ uses the **rolling-candidate** model:
   `rain-factory-deploy` revisions.
 - A human pushes a `sol-v<version>` tag, which runs `rainix-tag-release`: it
   writes the version from the tag into `foundry.toml`, runs
-  `bash script/cut-release.sh` (which copies `candidate` to
-  `src/generated/<tag>/`, then regenerates), verifies the live chains match the
-  pins with `forge test`, publishes `rain-factory-deploy` to Soldeer, and
-  commits the new snapshot back to `main`.
+  `bash script/cut-release.sh` (which regenerates `candidate`, then copies it to
+  `src/generated/<tag>/`), verifies the live chains match the pins with
+  `forge test`, publishes `rain-factory-deploy` to Soldeer, and commits the new
+  snapshot back to `main`.
 - The on-chain deploy happens **before** tagging, via the manual dispatch above;
   `rainix-tag-release` never broadcasts, it only attests.
 - Existing `src/generated/<tag>/` snapshots are frozen: a release adds a new tag

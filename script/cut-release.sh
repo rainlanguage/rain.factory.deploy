@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: LicenseRef-DCL-1.0
 # SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
-# Freeze the rolling `candidate` snapshot as a numbered release snapshot, then
-# regenerate the deploy pointer lib.
+# Regenerate the rolling `candidate` snapshot, then freeze it as a numbered
+# release snapshot.
 #
 # Invoked by rainix-tag-release as its `snapshot-generate-cmd`, AFTER the
 # reusable has resolved the release version from the pushed `sol-vX.Y.Z` tag and
@@ -13,8 +13,8 @@
 # source compiles to (regenerated every BuildPointers run). A numbered snapshot
 # (`0_1_5/`, …) is a FROZEN copy of `candidate` taken at the instant a tag
 # releases it — it never changes again (the frozen-snapshots-append-only gate
-# enforces this). This script performs that copy, then re-runs BuildPointers so
-# the pointer lib is regenerated on top of the freshly cut tree.
+# enforces this). This script regenerates `candidate` from the current source and
+# then performs that copy.
 set -euo pipefail
 
 VERSION="$(grep -m1 -E '^version = ' foundry.toml | sed -E 's/^version = "([^"]+)"/\1/')"
@@ -43,11 +43,30 @@ if [ -d "src/generated/${TAG}" ]; then
   exit 1
 fi
 
+# Regenerate FIRST, freeze SECOND. The numbered dir must record what this release
+# actually publishes, and what it publishes is `candidate` — the pin lib aliases
+# it — so the copy has to come from a `candidate` already known to match the
+# current source.
+#
+# The other order is silently wrong whenever the committed `candidate` has
+# drifted from the source: the copy freezes the stale bytes into a dir the
+# append-only gate then protects forever, while this regeneration moves
+# `candidate` on to the real ones. Nothing downstream catches it —
+# `testCandidateSelfConsistent` checks the *regenerated* `candidate` against the
+# source, and no test compares a numbered dir to `candidate` — so the release
+# publishes one address and permanently records another.
+#
+# `forge fmt` also runs before the copy, so the frozen dir is byte-identical to
+# `candidate` rather than to its pre-format form.
+forge script ./script/BuildPointers.sol
+forge fmt
+
 echo "cut-release: freezing candidate -> src/generated/${TAG}"
 cp -r src/generated/candidate "src/generated/${TAG}"
 
-# Regenerate candidate (idempotent — source unchanged) and the pointer lib. The
-# lib keeps pointing at `candidate`: "current" never advances to the numbered
-# dir, which is only a historical record of what this release shipped.
-forge script ./script/BuildPointers.sol
-forge fmt
+# The point of the ordering above, asserted rather than assumed: the frozen
+# record and the published pin are the same bytes.
+if ! diff -r src/generated/candidate "src/generated/${TAG}"; then
+  echo "cut-release: src/generated/${TAG} does not match src/generated/candidate after the copy" >&2
+  exit 1
+fi
