@@ -74,17 +74,32 @@ as the `rain-factory` Soldeer dependency, so they are read under
   - `cloneDeterministic` / `predictDeterministicAddress` (declared on
     `ICloneableFactoryV3`, which V4 extends) namespace the caller-supplied salt
     by `msg.sender` via `_effectiveSalt`, so a caller's `(implementation, salt)`
-    address cannot be reached by another account.
-  - `cloneDeterministicOpenSalt` / `predictDeterministicAddressOpenSalt` pass
-    the caller-supplied salt verbatim, so the address carries no identity and
-    anyone can deploy it. Only safe for implementations whose `initialize`
-    takes no caller-controlled authority — the NatSpec on
-    `ICloneableFactoryV4.cloneDeterministicOpenSalt` is the spec for that
-    condition, and it lives in rain.factory, not here.
+    address cannot be reached by another account. `data` is outside that
+    derivation.
+  - `cloneDeterministicOpenSalt` / `predictDeterministicAddressOpenSalt` derive
+    the salt via `_effectiveOpenSalt` as
+    `keccak256(abi.encode(ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN, salt, keccak256(data)))`,
+    so the address carries no identity and anyone can deploy it, but everyone
+    who does deploys the same contract initialized with the same bytes.
+    `predictDeterministicAddressOpenSalt` therefore takes `data` — it is one of
+    the derivation's inputs. The residual condition on implementations
+    (`initialize` MUST NOT read `tx.origin`) is specified by the NatSpec on
+    `ICloneableFactoryV4.cloneDeterministicOpenSalt`, which lives in
+    rain.factory, not here.
 
   Both share `_requireImplementationCode` and `_initializeClone`, so
   clone-and-initialize is atomic and the failure modes are identical across the
   two.
+
+  **The two salt derivations MUST have disjoint images**, and `CloneFactory` is
+  where `ICloneableFactoryV4`'s MUST NOT on the factory is actually held: 96
+  bytes led by the domain constant versus 64 bytes led by a left-padded address.
+  Drop the domain word and any account `A` reaches every open-salt address whose
+  `salt` equals `bytes32(uint256(uint160(A)))` via `cloneDeterministic` with
+  arbitrary `data`. Do not add a third entry point that hashes to either shape,
+  and do not change the shape of either preimage.
+  `testCloneDeterministicOpenSaltDisjointFromNamespacedAtLeftPaddedAddressSalt`
+  is the gate.
 - `src/lib/LibCloneFactoryDeploy.sol` — Deterministic deployment address and
   codehash constants (generated; aliases the rolling `src/generated/candidate/`
   snapshot).

@@ -18,22 +18,50 @@ atomically. It offers two deterministic (`CREATE2`) entry points that differ
 only in how the salt is derived:
 
 - `cloneDeterministic` namespaces the caller-supplied salt by `msg.sender`, so
-  nobody else can reach the caller's address — but the deploying account is
-  baked into that address forever.
-- `cloneDeterministicOpenSalt` uses the caller-supplied salt verbatim, so the
-  address is a function of `(implementation, salt)` and the factory alone: every
+  the address commits to WHO deployed: nobody else can reach the caller's
+  address, but the deploying account is baked into it forever and `data` is
+  outside the derivation.
+- `cloneDeterministicOpenSalt` derives the salt as
+  `keccak256(abi.encode(ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN, salt, keccak256(data)))`,
+  so the address commits to WHAT was deployed and to nothing about who deployed
+  it: it is a function of `(factory, implementation, salt, data)` alone. Every
   account reaches the same address, and so can anyone. That also makes it the
   same address across chains, but only where both the factory and the
   implementation are themselves at the same address on each chain — `CREATE2`
   hashes the factory, and the EIP1167 creation code it hashes contains the
   implementation.
 
-Open-salt is ONLY safe for implementations whose `initialize` takes no
-caller-controlled authority: clone-and-initialize is atomic and runs once, so
-the first deployer's `data` sets the clone's authority permanently, with no
-recovery. Read the NatSpec on
-`ICloneableFactoryV4.cloneDeterministicOpenSalt` (in `rain.factory`) before
-using it — the qualifying condition is stated there, not here.
+Because `data` is in the derivation, open-salt needs no per-implementation audit
+of what a squatter could pass. A front-runner who passes different `data`
+derives a different address and has deployed their own contract at their own
+expense; one who passes the same `data` has deployed exactly the intended
+contract with the intended bytes and has paid the gas for it. What is left is
+that the address cannot fix what `initialize` reads that is not `data`, so an
+implementation used this way MUST NOT read `tx.origin`. The full statement of
+that condition and of the residual timing lever is the NatSpec on
+`ICloneableFactoryV4.cloneDeterministicOpenSalt` (in `rain.factory`), not here.
+The cost open-salt does carry is that the address is not knowable until `data`
+is final, and a consumer pinning one must be able to reproduce those bytes
+exactly, ABI encoding and all.
+
+### The domain separator is load-bearing
+
+`ICloneableFactoryV4` states the disjointness of the two derivations as a MUST
+NOT on the **factory**: no other entry point may `CREATE2` in the open-salt
+image with caller-supplied `data`. `cloneDeterministic` is exactly such an entry
+point, so `CloneFactory` holds the rule structurally — a 96-byte preimage led by
+the domain constant against a 64-byte preimage led by a left-padded address.
+
+Without the domain word both preimages would be 64 bytes led by a word the
+caller chooses, and since `abi.encode` left-pads an address into the same word a
+`bytes32` salt already is, any account `A` would reach every open-salt address
+whose `salt` equals `bytes32(uint256(uint160(A)))` by calling
+`cloneDeterministic(implementation, evilData, keccak256(data))` — a choice of
+salt, not a preimage search.
+`testCloneDeterministicOpenSaltDisjointFromNamespacedAtLeftPaddedAddressSalt` is
+the test that fails if that ever stops holding: it builds that exact squat,
+asserts against the factory's own namespaced prediction that an untagged
+derivation would land on it, and then shows the real one does not.
 
 ## Snapshots
 
@@ -72,19 +100,20 @@ revisions.
 
 `sol-v0.1.6` exists as a tag on `685bb2ba`. Its `rainix-tag-release` run
 ([30097157490](https://github.com/rainlanguage/rain.factory.deploy/actions/runs/30097157490))
-got as far as *Verify live chain matches the fresh pins* and died there — all
-five fork tests failed with `vm.createSelectFork: environment variable
-<NETWORK>_RPC_URL not found`. The reusable exported the fork endpoints under the
-**secret** names (`RPC_URL_<NETWORK>_FORK`), while `[rpc_endpoints]` in
-`foundry.toml` reads `${<NETWORK>_RPC_URL}`, so every endpoint resolved to an
-empty string. Publish, commit-back and GitHub Release were all skipped, which is
-why the tag exists with no revision, no release and no `0_1_6` snapshot behind
-it.
+got as far as _Verify live chain matches the fresh pins_ and died there — all
+five fork tests failed with
+`vm.createSelectFork: environment variable
+<NETWORK>_RPC_URL not found`. The
+reusable exported the fork endpoints under the **secret** names
+(`RPC_URL_<NETWORK>_FORK`), while `[rpc_endpoints]` in `foundry.toml` reads
+`${<NETWORK>_RPC_URL}`, so every endpoint resolved to an empty string. Publish,
+commit-back and GitHub Release were all skipped, which is why the tag exists
+with no revision, no release and no `0_1_6` snapshot behind it.
 
 That was a defect in `rainix-tag-release`, not in this repo, and it is fixed
 upstream: `rainix` now runs an `rpc-preflight` step that binds each env name
-foundry actually reads to an endpoint probed healthy at that moment. The next tag
-does not hit this.
+foundry actually reads to an endpoint probed healthy at that moment. The next
+tag does not hit this.
 
 Two consequences for whoever cuts the first release:
 
@@ -95,8 +124,8 @@ Two consequences for whoever cuts the first release:
 - **The fork RPCs still gate the release.** The verify step is the repo's own
   fork suite, so a release only publishes if the pins resolve on every supported
   chain. Those endpoints are currently intermittent (a free-plan `lb.drpc.live`
-  returning quota and 408 errors), which reds the same suite on ordinary PRs. Get
-  them healthy before tagging: a transient failure here fails the release, and
-  the fix is to tag again, not to retry the run.
+  returning quota and 408 errors), which reds the same suite on ordinary PRs.
+  Get them healthy before tagging: a transient failure here fails the release,
+  and the fix is to tag again, not to retry the run.
 
 See rainlanguage/rain.factory#46 for the split rationale.

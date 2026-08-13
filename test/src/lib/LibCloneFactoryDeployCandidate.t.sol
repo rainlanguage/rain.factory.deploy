@@ -82,7 +82,7 @@ contract LibCloneFactoryDeployCandidateTest is Test {
         bytes memory data = hex"f100dedb0a75";
 
         address predictedNamespaced = factory.predictDeterministicAddress(address(implementation), salt, address(this));
-        address predictedOpen = factory.predictDeterministicAddressOpenSalt(address(implementation), salt);
+        address predictedOpen = factory.predictDeterministicAddressOpenSalt(address(implementation), data, salt);
         assertTrue(predictedNamespaced != predictedOpen);
 
         address childNamespaced = factory.cloneDeterministic(address(implementation), data, salt);
