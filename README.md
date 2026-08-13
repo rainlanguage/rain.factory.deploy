@@ -29,13 +29,18 @@ See rainlanguage/rain.factory#46 for the split rationale.
 
 ## Audit
 
-This repo has never been audited under its own name. It carries two
+This repo has never been audited under its own name. It carries three
 **inherited** Protofire reports: audits of `rain.factory`, performed before the
-split, of the source that built some of the snapshots pinned here. They are
-prefixed `inherited.` and their provenance and per-snapshot coverage are
-recorded in [`audit/protofire/inherited.json`](audit/protofire/inherited.json) —
-read that file, not this section, for what each report covers.
+split, of the source that built the snapshots pinned here. They are prefixed
+`inherited.` and their provenance and per-snapshot coverage are recorded in
+[`audit/protofire/inherited.json`](audit/protofire/inherited.json) — read that
+file, not this section, for what each report covers.
 
-Coverage is partial: **`src/generated/0_1_5/` — the `ICloneableFactoryV3`
-rewrite, and the pin `LibCloneFactoryDeploy` currently aliases and deploys on
-every live chain — is covered by neither report and has never been audited.**
+Every snapshot in `src/generated/` is covered by exactly one of them:
+`src/generated/0_1_3/` and `src/generated/0_1_4/` (the `ICloneableFactoryV2`
+bytecode) by r2.0, and `src/generated/0_1_5/` (the `ICloneableFactoryV3` rewrite
+that `LibCloneFactoryDeploy` currently aliases and that is live on every
+supported chain) by r3.0, which audited `rain.factory` at tag `sol-v0.1.5` with
+zero findings at every severity. Coverage is never inferred from a filename: it
+is asserted per snapshot directory in the manifest, so a future snapshot appears
+as uncovered until a report is inherited for it.

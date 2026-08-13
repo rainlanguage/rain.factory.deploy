@@ -2,6 +2,20 @@
   "schema": 1,
   "records": [
     {
+      "pdf": "inherited.rain.factory.sol-v0.1.5-r3.0.jul-2026.pdf",
+      "sha256": "71fc0b5c99a0630977c510a892b407d7141495d5d2cbd78c0e929b9795d3947e",
+      "report": "r3.0",
+      "reportDate": "2026-07-30",
+      "source": { "org": "rainlanguage", "repo": "rain.factory", "ref": "sol-v0.1.5" },
+      "covers": [
+        {
+          "snapshot": "src/generated/0_1_5",
+          "bytecodeHash": "0x3ec02e2f27d73f603f5b37a7dc228956004e9154c6d1f9c5335bd60036379d00"
+        }
+      ],
+      "basis": "The report's Reviews table records 30/07/26 against rain.factory commit c29d5827309d2f10a6e68c76bc2ea385e0a4e701, tag sol-v0.1.5, and its Scope lists src/concrete/CloneFactory.sol, src/interface/ICloneableFactoryV2.sol, src/interface/ICloneableFactoryV3.sol, src/interface/ICloneableV2.sol and src/lib/LibCloneFactoryDeploy.sol. Zero findings at every severity. Coverage of src/generated/0_1_5 is an identity, not a rebuild: src/generated/0_1_5/CloneFactory.pointers.sol at that audited commit is byte-identical to this repo's copy (sha256 d3def164d01d2b50ebf7175a4efaaa76bfc020f992a9ed73e67203d3a54ed902), so the audited tree and this snapshot pin the same address 0x7053c1D000192f1FeC1fbe20350139F3300dBBaD and the same codehash. It does NOT cover src/generated/0_1_3 or src/generated/0_1_4: those hold ICloneableFactoryV2 bytecode that the audited c29d5827 source no longer builds, which is why r3.0 does not supersede r2.0."
+    },
+    {
       "pdf": "inherited.rain.factory.v0.1.1-r2.0.may-2026.pdf",
       "sha256": "6c4ecf9f47ebf96cda58a856901ccd25dd83b3a8b0e8524a00adb60f149894ca",
       "report": "r2.0",
