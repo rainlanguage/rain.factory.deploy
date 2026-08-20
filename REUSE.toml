@@ -7,8 +7,6 @@ path = [
     ".vscode/**/",
     ".coderabbitai.yaml",
     ".gitignore",
-    ".gitmodules",
-    "audit/**/",
     "CLAUDE.md",
     "README.md",
     "flake.lock",
@@ -16,7 +14,6 @@ path = [
     "foundry.toml",
     "slither.config.json",
     "REUSE.toml",
-    "foundry.lock",
     "soldeer.lock",
     ".soldeerignore",
 ]
