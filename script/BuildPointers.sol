@@ -32,10 +32,10 @@ contract BuildPointers is Script {
     // REUSE-IgnoreEnd
 
     /// @notice The canonical release tag. Read from `foundry.toml`
-    /// `[package].version` — the single source of truth — with dots converted to
-    /// underscores for the Solidity dir form (`0.1.3` -> `0_1_3`).
+    /// `[external.package].version` — the single source of truth — with dots
+    /// converted to underscores for the Solidity dir form (`0.1.3` -> `0_1_3`).
     function deployTag() internal view returns (string memory) {
-        string memory version = vm.parseTomlString(vm.readFile("foundry.toml"), ".package.version");
+        string memory version = vm.parseTomlString(vm.readFile("foundry.toml"), ".external.package.version");
         bytes memory b = bytes(version);
         bytes memory out = new bytes(b.length);
         for (uint256 i = 0; i < b.length; i++) {
