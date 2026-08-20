@@ -1,3 +1,11 @@
+# Release metadata, not foundry config. `[external.*]` is the namespace foundry
+# reserves for other tools and ignores outright, so it raises no unknown-section
+# warning and `forge config --fix` leaves it alone (a section foundry does not
+# reserve is read as a profile, warned about on every invocation and rewritten
+# into `[profile.*]` by the fixer). `version` is the last-published Soldeer
+# release — a deploy repo moves it only via a manual `sol-v*` tag, in lockstep
+# with the frozen `src/generated/<tag>/` snapshot it names — and is read here by
+# `script/BuildPointers.sol` (`deployTag()`) to locate that snapshot.
 [external.package]
 name = "rain-factory-deploy"
 version = "0.1.5"
