@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.5/src/interface/ICloneableV2.sol";
+import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.9/src/interface/ICloneableV2.sol";
 
 /// @title TestCloneable
 /// @notice A cloneable contract that implements `ICloneableV2`. Initializes

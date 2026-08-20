@@ -6,7 +6,7 @@ import {Test, Vm} from "forge-std-1.16.2/src/Test.sol";
 
 import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.1/src/lib/LibExtrospectERC1167Proxy.sol";
-import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.5/src/interface/ICloneableV2.sol";
+import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.9/src/interface/ICloneableV2.sol";
 import {CloneFactory, ZeroImplementationCodeSize, InitializationFailed} from "../../../src/concrete/CloneFactory.sol";
 import {TestCloneable} from "./TestCloneable.sol";
 import {TestCloneableFailure} from "./TestCloneableFailure.sol";

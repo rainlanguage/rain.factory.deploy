@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.5/src/interface/ICloneableV2.sol";
-import {ICloneableFactoryV3} from "rain-factory-0.1.5/src/interface/ICloneableFactoryV3.sol";
+import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.9/src/interface/ICloneableV2.sol";
+import {ICloneableFactoryV3} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV3.sol";
 import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 
 /// Thrown when an implementation has zero code size which is always a mistake.
