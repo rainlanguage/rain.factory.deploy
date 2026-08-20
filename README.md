@@ -20,8 +20,8 @@ tagging: the `Manual sol artifacts` workflow runs `script/Deploy.sol` for the
 `clone-factory` suite. Tagging then runs `rainix-tag-release`, which never
 broadcasts a deploy itself; its mechanics live in rainix.
 
-Nothing publishes on merge: a release bumps `[package].version` and freezes the
-current `src/generated/candidate/` snapshot into a new `src/generated/<tag>/` in
-lockstep.
+Nothing publishes on merge: a release bumps `[external.package].version` and
+freezes the current `src/generated/candidate/` snapshot into a new
+`src/generated/<tag>/` in lockstep.
 
 See rainlanguage/rain.factory#46 for the split rationale.

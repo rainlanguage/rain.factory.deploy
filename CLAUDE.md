@@ -32,8 +32,9 @@ live in `rain.factory` and arrive as the `rain-factory` Soldeer dependency
 - `src/generated/<tag>/` snapshots are **frozen**: `cutRelease()` freezes the
   candidate into a new tag dir; a release only ADDS one, never edits or deletes
   an existing one. CI enforces append-only.
-- `[package].version` is the **last released** version. A normal PR does not
-  bump it; only a release moves it, in lockstep with a new frozen `<tag>/`.
+- `[external.package].version` is the **last released** version. A normal PR
+  does not bump it; only a release moves it, in lockstep with a new frozen
+  `<tag>/`.
 - Generated files (`src/generated/`, `src/lib/LibCloneFactoryDeploy.sol`) — do
   not hand-edit; `script/Build.sol` regenerates them.
 
