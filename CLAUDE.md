@@ -110,13 +110,9 @@ This is a **deploy repo**, not a library repo, so nothing publishes on merge:
 - `[package].version` in `foundry.toml` is the **last released** version (it
   names the current `src/generated/<tag>/` snapshot), not a next-version slot. A
   normal PR does not bump it; only a release moves it.
-- A human pushes a `sol-v<version>` tag, which runs `rainix-tag-release`: it
-  writes the version from the tag into `foundry.toml`, regenerates the snapshot
-  (`forge script ./script/BuildPointers.sol && forge fmt`), verifies the live
-  chains match the fresh pins with `forge test`, publishes `rain-factory-deploy`
-  to Soldeer, and commits the new snapshot back to `main`.
-- The on-chain deploy happens **before** tagging, via the manual dispatch above;
-  `rainix-tag-release` never broadcasts, it only attests.
+- A manual `sol-v<version>` tag is the sole release trigger. The on-chain deploy
+  happens **before** tagging, via the manual dispatch above; tagging never
+  broadcasts. The release mechanics are `rainix-tag-release`'s.
 - Existing `src/generated/<tag>/` snapshots are frozen: a release adds a new tag
   directory, it never edits or deletes an existing one. CI enforces this.
 
