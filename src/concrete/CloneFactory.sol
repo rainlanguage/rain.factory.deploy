@@ -2,32 +2,31 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {ICloneableV2, ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.9/src/interface/ICloneableV2.sol";
+// `ICloneableFactoryV3` is imported for the `@inheritdoc` references on the
+// functions it declares; `ICloneableFactoryV4` inherits rather than redeclares
+// them, so the tag must name V3 and V3 must be in scope here.
 import {ICloneableFactoryV3} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV3.sol";
-import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
-
-/// Thrown when an implementation has zero code size which is always a mistake.
-error ZeroImplementationCodeSize();
-
-/// Thrown when initialization fails.
-error InitializationFailed();
+import {ICloneableFactoryV4} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV4.sol";
+import {LibICloneableFactoryV4} from "rain-factory-0.1.9/src/lib/LibICloneableFactoryV4.sol";
 
 /// @title CloneFactory
-/// @notice A fairly minimal implementation of `ICloneableFactoryV3` that uses
-/// Open Zeppelin `Clones` to create EIP1167 clones of a reference bytecode. The
-/// reference bytecode MUST implement `ICloneableV2`.
+/// @notice The deployed concrete `ICloneableFactoryV4`: every function is a
+/// single delegation into `LibICloneableFactoryV4` and nothing else. This is
+/// the deploy half of the library/deploy split (rainlanguage/rain.factory#46):
+/// the derivations, the guards, the atomic clone-initialize-verify flow and
+/// the typed errors all live in the library, unit tested there, and this
+/// contract adds no behaviour of its own — the equivalence suite in this repo
+/// holds each entry point to exactly the library's behaviour.
 ///
-/// `cloneDeterministic` deploys via `CREATE2` at a pre-computable address
-/// (`predictDeterministicAddress`), namespacing the caller-supplied salt by
-/// `msg.sender` so a caller's `(implementation, salt)` address cannot be squatted
-/// by another account.
-contract CloneFactory is ICloneableFactoryV3 {
+/// `msg.sender` is read inside the library and the internal functions execute
+/// in this contract's call context, so the namespacing, the `NewClone` event
+/// and the predictions all observe this contract as the factory. See
+/// `ICloneableFactoryV4` for the spec of both derivations and why their salt
+/// images are disjoint by construction.
+contract CloneFactory is ICloneableFactoryV4 {
     /// @inheritdoc ICloneableFactoryV3
     function cloneDeterministic(address implementation, bytes calldata data, bytes32 salt) external returns (address) {
-        _requireImplementationCode(implementation);
-        // CREATE2 clone at a salt namespaced by the caller (see `_effectiveSalt`).
-        address child = Clones.cloneDeterministic(implementation, _effectiveSalt(msg.sender, salt));
-        return _initializeClone(implementation, child, data, salt);
+        return LibICloneableFactoryV4.cloneDeterministic(implementation, data, salt);
     }
 
     /// @inheritdoc ICloneableFactoryV3
@@ -36,43 +35,23 @@ contract CloneFactory is ICloneableFactoryV3 {
         view
         returns (address)
     {
-        return Clones.predictDeterministicAddress(implementation, _effectiveSalt(deployer, salt), address(this));
+        return LibICloneableFactoryV4.predictDeterministicAddress(implementation, salt, deployer);
     }
 
-    /// @dev The CREATE2 salt actually used: the caller-supplied `salt` namespaced
-    /// by the deploying account. Prevents a caller's `(implementation, salt)`
-    /// address being front-run/squatted by another account, while still letting a
-    /// single caller mint many clones of one implementation via distinct salts.
-    /// Equal to `keccak256(abi.encode(deployer, salt))`, hashed directly in the
-    /// scratch space; `deployer` is a clean address so it occupies a full word.
-    function _effectiveSalt(address deployer, bytes32 salt) internal pure returns (bytes32 effectiveSalt) {
-        assembly ("memory-safe") {
-            mstore(0, deployer)
-            mstore(0x20, salt)
-            effectiveSalt := keccak256(0, 0x40)
-        }
-    }
-
-    /// @dev Reverts with a clear error if `implementation` has no code.
-    function _requireImplementationCode(address implementation) internal view {
-        if (implementation.code.length == 0) {
-            revert ZeroImplementationCodeSize();
-        }
-    }
-
-    /// @dev Emit `NewClone` (with the caller `salt` and init `data`, so the event
-    /// fully describes the deterministic deploy) and run the mandatory
-    /// `ICloneableV2.initialize` check.
-    function _initializeClone(address implementation, address child, bytes calldata data, bytes32 salt)
-        internal
+    /// @inheritdoc ICloneableFactoryV4
+    function cloneDeterministicOpenSalt(address implementation, bytes calldata data, bytes32 salt)
+        external
         returns (address)
     {
-        emit NewClone(msg.sender, implementation, child, salt, data);
-        // Checking the return value of initialize is mandatory as per
-        // ICloneableFactoryV3.
-        if (ICloneableV2(child).initialize(data) != ICLONEABLE_V2_SUCCESS) {
-            revert InitializationFailed();
-        }
-        return child;
+        return LibICloneableFactoryV4.cloneDeterministicOpenSalt(implementation, data, salt);
+    }
+
+    /// @inheritdoc ICloneableFactoryV4
+    function predictDeterministicAddressOpenSalt(address implementation, bytes calldata data, bytes32 salt)
+        external
+        view
+        returns (address)
+    {
+        return LibICloneableFactoryV4.predictDeterministicAddressOpenSalt(implementation, data, salt);
     }
 }

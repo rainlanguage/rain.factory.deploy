@@ -7,7 +7,9 @@ import {Test, Vm} from "forge-std-1.16.2/src/Test.sol";
 import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.1/src/lib/LibExtrospectERC1167Proxy.sol";
 import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.9/src/interface/ICloneableV2.sol";
-import {CloneFactory, ZeroImplementationCodeSize, InitializationFailed} from "../../../src/concrete/CloneFactory.sol";
+import {ICLONEABLE_FACTORY_V4_NAMESPACED_DOMAIN} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV4.sol";
+import {ZeroImplementationCodeSize, InitializationFailed} from "rain-factory-0.1.9/src/lib/LibICloneableFactoryV4.sol";
+import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
 import {TestCloneable} from "./TestCloneable.sol";
 import {TestCloneableFailure} from "./TestCloneableFailure.sol";
 
@@ -22,15 +24,18 @@ contract CloneFactoryCloneDeterministicTest is Test {
         I_CLONE_FACTORY = new CloneFactory();
     }
 
-    /// The effective CREATE2 salt is exactly `keccak256(abi.encode(deployer,
-    /// salt))`, so an off-chain caller can reproduce the predicted address from
-    /// the two inputs. Pins the salt derivation — including the scratch-space
-    /// assembly that computes it — against OZ's own prediction under that salt.
-    function testCloneDeterministicSaltIsAbiEncodeHash(address implementation, bytes32 salt, address deployer)
+    /// The effective CREATE2 salt is exactly the derivation
+    /// `ICloneableFactoryV4` pins:
+    /// `keccak256(abi.encode(ICLONEABLE_FACTORY_V4_NAMESPACED_DOMAIN, deployer, salt))`,
+    /// so an off-chain caller can reproduce the predicted address from the two
+    /// inputs. Pinned against OZ `Clones` — a foreign implementation of the
+    /// same EIP-1167 standard — under an independently constructed salt, so
+    /// the test does not restate the library's arithmetic back to itself.
+    function testCloneDeterministicSaltIsDomainTaggedHash(address implementation, bytes32 salt, address deployer)
         external
         view
     {
-        bytes32 effectiveSalt = keccak256(abi.encode(deployer, salt));
+        bytes32 effectiveSalt = keccak256(abi.encode(ICLONEABLE_FACTORY_V4_NAMESPACED_DOMAIN, deployer, salt));
         address expected = Clones.predictDeterministicAddress(implementation, effectiveSalt, address(I_CLONE_FACTORY));
         assertEq(I_CLONE_FACTORY.predictDeterministicAddress(implementation, salt, deployer), expected);
     }
