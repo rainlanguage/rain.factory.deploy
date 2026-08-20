@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {Script} from "forge-std-1.16.1/src/Script.sol";
+import {Script} from "forge-std-1.16.2/src/Script.sol";
 import {CloneFactory} from "../src/concrete/CloneFactory.sol";
-import {LibRainDeploy} from "rain-deploy-0.1.3/src/lib/LibRainDeploy.sol";
+import {LibRainDeploy} from "rain-deploy-0.1.7/src/lib/LibRainDeploy.sol";
 import {LibCloneFactoryDeploy} from "../src/lib/LibCloneFactoryDeploy.sol";
 
 /// @dev Hash of the "clone-factory" deployment suite string.
@@ -13,8 +13,6 @@ bytes32 constant DEPLOYMENT_SUITE_CLONE_FACTORY = keccak256("clone-factory");
 /// @title Deploy
 /// @notice A script that deploys a CloneFactory.
 contract Deploy is Script {
-    mapping(string => mapping(address => bytes32)) internal sDepCodeHashes;
-
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("DEPLOYMENT_KEY");
 
@@ -28,8 +26,7 @@ contract Deploy is Script {
                 "src/concrete/CloneFactory.sol:CloneFactory",
                 LibCloneFactoryDeploy.CLONE_FACTORY_DEPLOYED_ADDRESS,
                 LibCloneFactoryDeploy.CLONE_FACTORY_DEPLOYED_CODEHASH,
-                new address[](0),
-                sDepCodeHashes
+                new address[](0)
             );
         } else {
             revert(

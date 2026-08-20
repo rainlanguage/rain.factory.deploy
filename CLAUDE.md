@@ -26,14 +26,16 @@ live in `rain.factory` and arrive as the `rain-factory` Soldeer dependency
 
 ## Deploy-pin invariants (the hazards)
 
-- `src/generated/<tag>/` snapshots are **frozen**: a release ADDS a new tag dir,
-  never edits or deletes an existing one. CI enforces append-only.
-- `[package].version` is the **last released** version — it names the current
-  `src/generated/<tag>/` snapshot. A normal PR does not bump it; only a release
-  moves it, in lockstep with the snapshot.
-- `LibCloneFactoryDeploy.sol` aliases the current tag's snapshot;
-  `script/BuildPointers.sol` regenerates both. Generated files — do not
-  hand-edit.
+- `src/generated/candidate/` is the **rolling** snapshot, rewritten from what
+  source compiles to by `script/Build.sol` and currency-checked by CI.
+  `LibCloneFactoryDeploy.sol` aliases it.
+- `src/generated/<tag>/` snapshots are **frozen**: `cutRelease()` freezes the
+  candidate into a new tag dir; a release only ADDS one, never edits or deletes
+  an existing one. CI enforces append-only.
+- `[package].version` is the **last released** version. A normal PR does not
+  bump it; only a release moves it, in lockstep with a new frozen `<tag>/`.
+- Generated files (`src/generated/`, `src/lib/LibCloneFactoryDeploy.sol`) — do
+  not hand-edit; `script/Build.sol` regenerates them.
 
 ## Release / deploy shape
 
