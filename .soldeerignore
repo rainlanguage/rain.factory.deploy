@@ -8,11 +8,13 @@
 .soldeerignore
 .vscode
 CLAUDE.md
+/audit
 /cache
 /dependencies
 /flake.lock
 /flake.nix
 /foundry.toml
+/meta
 /out
 /remappings.txt
 /slither.config.json

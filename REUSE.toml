@@ -7,6 +7,7 @@ path = [
     ".vscode/**/",
     ".coderabbitai.yaml",
     ".gitignore",
+    "audit/**/",
     "CLAUDE.md",
     "README.md",
     "flake.lock",
