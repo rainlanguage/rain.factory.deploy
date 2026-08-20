@@ -3,52 +3,91 @@
 pragma solidity =0.8.25;
 
 import {BuildScript} from "rain-deploy-0.1.7/src/abstract/BuildScript.sol";
+import {DeployCandidate} from "../src/abstract/RainDeploySuitesBase.sol";
+import {CloneFactoryDeploySuites} from "../src/abstract/CloneFactoryDeploySuites.sol";
 import {LibRainDeploySnapshot} from "rain-deploy-0.1.7/src/lib/LibRainDeploySnapshot.sol";
-import {CloneFactory} from "../src/concrete/CloneFactory.sol";
+
+/// One contract's generated files: the rolling snapshot, the alias lib that
+/// re-exports its pins and the released-suites lib emitted from its record.
+struct GeneratedContract {
+    /// Places the snapshot inside `src/generated/<dir>/` and names both
+    /// generated libs.
+    string contractName;
+    /// Prefix for the constants the alias lib exports, e.g. `CLONE_FACTORY`.
+    string constantPrefix;
+    /// Snapshots are written from its `sourceCreationCode` and
+    /// `snapshot.dependencies`; the released lib takes its suite key and
+    /// artifact path from its `snapshot`.
+    DeployCandidate candidate;
+}
 
 /// @title Build
-/// @notice Generates `CloneFactory`'s deploy pins on the `BuildScript` rolling
-/// candidate model:
-///   - `regenerateSnapshots()` writes the rolling
-///     `src/generated/candidate/CloneFactory.sol` snapshot (`BYTECODE_HASH`,
-///     `DEPLOYED_ADDRESS`, `CREATION_CODE`, `RUNTIME_CODE`, `DEPENDENCIES`) from
-///     what this repo currently compiles.
-///   - `regenerateLibs()` writes `src/lib/LibCloneFactoryDeploy.sol`, the
-///     stable-path alias that re-exports the candidate's address and code hash
-///     so that snapshot stays the single source of truth.
-///   - `snapshotContractNames()` names what a release freezes.
+/// @notice Generates the deploy pins for every contract this repo deploys.
+/// `generatedContracts()` is the only list, read by every hook below.
 ///
-/// `run()` (what CI regenerates against) rewrites the candidate and the alias.
-/// `cutRelease()` freezes the candidate into `src/generated/<tag>/` first. The
-/// frozen `0_1_3`/`0_1_4`/`0_1_5` snapshots are append-only historical records,
-/// never regenerated here.
-contract Build is BuildScript {
-    /// The single contract this repo deploys, named once for every hook.
-    string constant CONTRACT_NAME = "CloneFactory";
-    /// The prefix for the alias lib's exported constants —
-    /// `CLONE_FACTORY_DEPLOYED_ADDRESS` / `CLONE_FACTORY_DEPLOYED_CODEHASH`.
-    string constant CONSTANT_PREFIX = "CLONE_FACTORY";
+/// `run()` (what CI regenerates against) rewrites the rolling
+/// `src/generated/candidate/` snapshot, the alias lib and the released-suites
+/// libs. `cutRelease()` freezes the candidate into `src/generated/<tag>/`
+/// first. The frozen `0_1_3`/`0_1_4`/`0_1_5` snapshots are append-only
+/// historical records, never regenerated here.
+contract Build is BuildScript, CloneFactoryDeploySuites {
+    /// Every contract this repo generates deploy pins for.
+    /// @return The generated contracts.
+    function generatedContracts() internal pure returns (GeneratedContract[] memory) {
+        GeneratedContract[] memory contracts = new GeneratedContract[](1);
+        contracts[0] = GeneratedContract({
+            contractName: "CloneFactory", constantPrefix: "CLONE_FACTORY", candidate: cloneFactoryCandidate()
+        });
+        return contracts;
+    }
 
     /// @inheritdoc BuildScript
+    /// @dev In declaration order — the order the aggregate emits its entries
+    /// in.
     function snapshotContractNames() internal pure override returns (string[] memory) {
-        string[] memory names = new string[](1);
-        names[0] = CONTRACT_NAME;
+        GeneratedContract[] memory contracts = generatedContracts();
+        string[] memory names = new string[](contracts.length);
+        for (uint256 i = 0; i < contracts.length; i++) {
+            names[i] = contracts[i].contractName;
+        }
         return names;
     }
 
     /// @inheritdoc BuildScript
-    /// @dev `CloneFactory` has no on-chain dependencies that must pre-exist for
-    /// it to be broadcast, so the dependency list is empty.
-    function regenerateSnapshots() internal override {
-        LibRainDeploySnapshot.writeSnapshot(
-            vm, LibRainDeploySnapshot.CANDIDATE, CONTRACT_NAME, type(CloneFactory).creationCode, new address[](0)
-        );
+    /// @dev Every alias lib, every released-suites lib and the aggregate over
+    /// them.
+    function regenerateLibs() internal override {
+        GeneratedContract[] memory contracts = generatedContracts();
+        for (uint256 i = 0; i < contracts.length; i++) {
+            LibRainDeploySnapshot.writeAliasLib(
+                vm,
+                LibRainDeploySnapshot.LIB_DIR,
+                contracts[i].contractName,
+                contracts[i].constantPrefix,
+                LibRainDeploySnapshot.CANDIDATE
+            );
+            LibRainDeploySnapshot.writeReleasedSuitesLib(
+                vm,
+                LibRainDeploySnapshot.LIB_DIR,
+                recordRoot(),
+                contracts[i].contractName,
+                contracts[i].candidate.snapshot
+            );
+        }
+        LibRainDeploySnapshot.writeReleasedSuitesAggregate(vm, LibRainDeploySnapshot.LIB_DIR, snapshotContractNames());
     }
 
     /// @inheritdoc BuildScript
-    function regenerateLibs() internal override {
-        LibRainDeploySnapshot.writeAliasLib(
-            vm, LibRainDeploySnapshot.LIB_DIR, CONTRACT_NAME, CONSTANT_PREFIX, LibRainDeploySnapshot.CANDIDATE
-        );
+    function regenerateSnapshots() internal override {
+        GeneratedContract[] memory contracts = generatedContracts();
+        for (uint256 i = 0; i < contracts.length; i++) {
+            LibRainDeploySnapshot.writeSnapshot(
+                vm,
+                LibRainDeploySnapshot.CANDIDATE,
+                contracts[i].contractName,
+                contracts[i].candidate.sourceCreationCode,
+                contracts[i].candidate.snapshot.dependencies
+            );
+        }
     }
 }
