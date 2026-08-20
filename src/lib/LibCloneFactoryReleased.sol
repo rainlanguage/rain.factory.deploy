@@ -6,6 +6,14 @@ pragma solidity ^0.8.25;
 
 import {DeploySuite} from "../abstract/RainDeploySuitesBase.sol";
 
+import {
+    DEPLOYED_ADDRESS as CloneFactory_0_1_9_DEPLOYED_ADDRESS,
+    BYTECODE_HASH as CloneFactory_0_1_9_BYTECODE_HASH,
+    CREATION_CODE as CloneFactory_0_1_9_CREATION_CODE,
+    RUNTIME_CODE as CloneFactory_0_1_9_RUNTIME_CODE,
+    DEPENDENCIES as CloneFactory_0_1_9_DEPENDENCIES
+} from "../generated/0_1_9/CloneFactory.sol";
+
 /// @title LibCloneFactoryReleased
 /// @notice Every frozen release of `CloneFactory`: one entry per file in
 /// the append-only `src/generated/<tag>/` record, in tag order.
@@ -26,7 +34,16 @@ library LibCloneFactoryReleased {
     /// Every frozen release, in tag order.
     /// @return The released suites.
     function releasedSuites() internal pure returns (DeploySuite[] memory) {
-        DeploySuite[] memory suites = new DeploySuite[](0);
+        DeploySuite[] memory suites = new DeploySuite[](1);
+        suites[0] = DeploySuite({
+            suite: "clone-factory@0_1_9",
+            creationCode: CloneFactory_0_1_9_CREATION_CODE,
+            storedDeployedAddress: CloneFactory_0_1_9_DEPLOYED_ADDRESS,
+            storedBytecodeHash: CloneFactory_0_1_9_BYTECODE_HASH,
+            storedRuntimeCode: CloneFactory_0_1_9_RUNTIME_CODE,
+            artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
+            dependencies: abi.decode(CloneFactory_0_1_9_DEPENDENCIES, (address[]))
+        });
         return suites;
     }
 }

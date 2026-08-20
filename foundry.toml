@@ -8,7 +8,7 @@
 # `script/Build.sol`'s `cutRelease()` to locate the snapshot it freezes.
 [external.package]
 name = "rain-factory-deploy"
-version = "0.1.8"
+version = "0.1.9"
 
 [profile.default]
 src = 'src'
