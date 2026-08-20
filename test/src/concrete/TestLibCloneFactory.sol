@@ -9,21 +9,15 @@ import {ICloneableFactoryV3} from "rain-factory-0.1.9/src/interface/ICloneableFa
 import {ICloneableFactoryV4} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV4.sol";
 import {LibICloneableFactoryV4} from "rain-factory-0.1.9/src/lib/LibICloneableFactoryV4.sol";
 
-/// @title CloneFactory
-/// @notice The deployed concrete `ICloneableFactoryV4`: every function is a
-/// single delegation into `LibICloneableFactoryV4` and nothing else. This is
-/// the deploy half of the library/deploy split (rainlanguage/rain.factory#46):
-/// the derivations, the guards, the atomic clone-initialize-verify flow and
-/// the typed errors all live in the library, unit tested there, and this
-/// contract adds no behaviour of its own — the equivalence suite in this repo
-/// holds each entry point to exactly the library's behaviour.
-///
-/// `msg.sender` is read inside the library and the internal functions execute
-/// in this contract's call context, so the namespacing, the `NewClone` event
-/// and the predictions all observe this contract as the factory. See
-/// `ICloneableFactoryV4` for the spec of both derivations and why their salt
-/// images are disjoint by construction.
-contract CloneFactory is ICloneableFactoryV4 {
+/// @title TestLibCloneFactory
+/// @notice The library run bare: an external surface over
+/// `LibICloneableFactoryV4` that is nothing but the same four delegations the
+/// shipped `CloneFactory` makes, declared independently so the equivalence
+/// suite has the library's own behaviour to hold the concrete against. If the
+/// concrete ever grows behaviour beyond delegation the two diverge and the
+/// equivalence tests fail; while it does not, the two compile to the same
+/// runtime bytecode and the suite pins that too.
+contract TestLibCloneFactory is ICloneableFactoryV4 {
     /// @inheritdoc ICloneableFactoryV3
     function cloneDeterministic(address implementation, bytes calldata data, bytes32 salt) external returns (address) {
         return LibICloneableFactoryV4.cloneDeterministic(implementation, data, salt);

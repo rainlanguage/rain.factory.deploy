@@ -44,7 +44,7 @@ forge-std = "1.16.2"
 "rain-extrospection" = "0.1.1"
 "rain-deploy" = "0.1.7"
 "rain-sol-codegen" = "0.1.36"
-"rain-factory" = "0.1.5"
+"rain-factory" = "0.1.9"
 
 [soldeer]
 recursive_deps = false
