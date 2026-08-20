@@ -9,5 +9,5 @@ jobs:
     uses: rainlanguage/rainix/.github/workflows/rainix-tag-release.yaml@main
     with:
       soldeer-package: rain-factory-deploy
-      snapshot-generate-cmd: forge script ./script/BuildPointers.sol && forge fmt
+      snapshot-generate-cmd: forge script ./script/Build.sol --sig "cutRelease()" && forge fmt
     secrets: inherit

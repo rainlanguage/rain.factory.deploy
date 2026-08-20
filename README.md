@@ -1,9 +1,9 @@
 # rain.factory.deploy
 
 The **deployment** half of `rain.factory`: the concrete `CloneFactory` contract,
-its deployed address + codehash pins (`LibCloneFactoryDeploy`), the frozen
-per-tag deploy-pin snapshots under `src/generated/<tag>/`, and the deploy
-script.
+its deployed address + codehash pins (`LibCloneFactoryDeploy`), the rolling
+`src/generated/candidate/` snapshot those pins alias, the frozen per-release
+snapshots under `src/generated/<tag>/`, and the deploy script.
 
 The **library** half — the `ICloneable*` interfaces — lives in
 [`rain.factory`](https://github.com/rainlanguage/rain.factory) and is imported
@@ -20,7 +20,8 @@ tagging: the `Manual sol artifacts` workflow runs `script/Deploy.sol` for the
 `clone-factory` suite. Tagging then runs `rainix-tag-release`, which never
 broadcasts a deploy itself; its mechanics live in rainix.
 
-Nothing publishes on merge, so `[external.package].version` and the frozen
-`src/generated/<tag>/` snapshot it names only ever move together.
+Nothing publishes on merge: a release bumps `[external.package].version` and
+freezes the current `src/generated/candidate/` snapshot into a new
+`src/generated/<tag>/` in lockstep.
 
 See rainlanguage/rain.factory#46 for the split rationale.
