@@ -17,10 +17,8 @@ This is a deploy repo: releases are **manual `sol-v*` tags**, not merges.
 
 The on-chain deploy is a separate, human-dispatched step, run **before**
 tagging: the `Manual sol artifacts` workflow runs `script/Deploy.sol` for the
-`clone-factory` suite. Tagging then runs `rainix-tag-release`, which regenerates
-the snapshot for the tagged version, verifies the live chains match those fresh
-pins, publishes `rain-factory-deploy` to Soldeer, and commits the frozen
-snapshot back to `main`. It never broadcasts a deploy itself.
+`clone-factory` suite. Tagging then runs `rainix-tag-release`, which never
+broadcasts a deploy itself; its mechanics live in rainix.
 
 Nothing publishes on merge, so `[package].version` and the frozen
 `src/generated/<tag>/` snapshot it names only ever move together.
