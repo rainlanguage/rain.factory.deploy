@@ -8,6 +8,7 @@ on:
         type: choice
         options:
           - clone-factory
+          - clone-factory@0_1_1
           - clone-factory@0_1_9
           - clone-factory@0_1_10
 jobs:
