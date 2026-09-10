@@ -1,9 +1,19 @@
 name: Manual sol artifacts
 on:
   workflow_dispatch:
+    inputs:
+      suite:
+        description: "The suite to deploy. The bare key is the rolling candidate (current source); a `@<tag>` key is a frozen release, which is what a newly supported network needs so the addresses every consumer pins land there."
+        required: true
+        type: choice
+        options:
+          - clone-factory
+          - clone-factory@0_1_1
+          - clone-factory@0_1_9
+          - clone-factory@0_1_10
 jobs:
   deploy:
     uses: rainlanguage/rainix/.github/workflows/rainix-manual-sol-artifacts.yaml@main
     with:
-      suite: clone-factory
+      suite: ${{ inputs.suite }}
     secrets: inherit
