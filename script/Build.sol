@@ -28,8 +28,8 @@ struct GeneratedContract {
 /// `run()` (what CI regenerates against) rewrites the rolling
 /// `src/generated/candidate/` snapshot, the alias lib and the released-suites
 /// libs. `cutRelease()` freezes the candidate into `src/generated/<tag>/`
-/// first. The frozen `0_1_3`/`0_1_4`/`0_1_5` snapshots are append-only
-/// historical records, never regenerated here.
+/// first. The frozen snapshots are append-only historical records, never
+/// regenerated here.
 contract Build is BuildScript, CloneFactoryDeploySuites {
     /// Every contract this repo generates deploy pins for.
     /// @return The generated contracts.
