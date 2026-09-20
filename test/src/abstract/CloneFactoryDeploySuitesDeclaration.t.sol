@@ -44,6 +44,12 @@ contract CloneFactoryDeploySuitesDeclarationTest is CloneFactoryDeploySuites, Te
     ///
     /// Matching by key instead, so the question asked is "is THIS tag declared"
     /// rather than "does some declared suite happen to land on this address".
+    /// Deliberately NOT also a size check. `rain-deploy` explains at length on
+    /// `testEveryFrozenSnapshotIsReleased` why comparing the record's size against
+    /// the declaration's would red-line permanently with no way to spell the
+    /// exemption: a release deployed before this repo adopted the machinery has no
+    /// frozen record and never will. Asking only that each tag present IS declared
+    /// keeps that state legal while still catching a dropped release.
     function testEveryFrozenTagIsDeclaredByKey() external view {
         Vm.DirEntry[] memory entries = vm.readDir(GENERATED_DIR, 1);
         DeploySuite[] memory released = releasedSuites();
@@ -74,7 +80,6 @@ contract CloneFactoryDeploySuitesDeclarationTest is CloneFactoryDeploySuites, Te
         // A walk that found no tag would pass the loop above with no subject.
         // This repo has frozen releases, so finding none means the walk broke.
         assertTrue(tagsSeen > 0, "no frozen release directories found under the record root");
-        assertEq(released.length, tagsSeen, "declared releases and frozen release directories disagree in number");
     }
 
     /// The rolling candidate is declared under the bare suite key, which is what
