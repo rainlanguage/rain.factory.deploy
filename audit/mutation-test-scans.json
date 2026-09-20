@@ -2,7 +2,6 @@
   {
     "timestamp": "2026-09-20T10:34:00Z",
     "commit": "5c165a880ac105d6c038cee096500f76849a2190",
-    "testsAfterCommit": "70d4e18886c0b681e1d632d7153c1642fb3266e3",
     "publishedTag": "sol-v0.1.10",
     "commitsAheadOfTag": 6,
     "scope": "whole repo",
