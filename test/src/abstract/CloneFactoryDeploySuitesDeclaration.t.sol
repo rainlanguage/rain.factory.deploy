@@ -77,10 +77,12 @@ contract CloneFactoryDeploySuitesDeclarationTest is CloneFactoryDeploySuites, Te
             string[] memory parts = vm.split(suites[i].artifactPath, ":");
             assertEq(parts.length, 2, string.concat("artifactPath is not <path>:<Name>: ", suites[i].artifactPath));
 
+            // `vm.getCode` matches an artifact id by path SUFFIX, so the file
+            // check stays: a path that resolves can still name no file.
             assertTrue(vm.exists(parts[0]), string.concat("artifactPath names no such file: ", parts[0]));
             assertTrue(
-                vm.contains(vm.readFile(parts[0]), string.concat("contract ", parts[1])),
-                string.concat("artifactPath file declares no such contract: ", suites[i].artifactPath)
+                vm.getCode(suites[i].artifactPath).length > 0,
+                string.concat("artifactPath resolves to no deployable artifact: ", suites[i].artifactPath)
             );
         }
     }
