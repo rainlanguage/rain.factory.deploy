@@ -2,15 +2,16 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {Test, Vm} from "forge-std-1.16.2/src/Test.sol";
+import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
-import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.9/src/interface/ICloneableV2.sol";
+import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.30/src/interface/ICloneableV2.sol";
 import {
     LibICloneableFactoryV4,
     ZeroImplementationCodeSize,
+    CloneAddressOccupied,
     CloneDeploymentFailed,
     InitializationFailed
-} from "rain-factory-0.1.9/src/lib/LibICloneableFactoryV4.sol";
+} from "rain-factory-0.1.30/src/lib/LibICloneableFactoryV4.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
 import {TestLibCloneFactory} from "./TestLibCloneFactory.sol";
 import {TestCloneable} from "./TestCloneable.sol";
@@ -295,10 +296,11 @@ contract CloneFactoryLibEquivalenceTest is Test {
         );
     }
 
-    /// Re-deploying at a taken namespaced salt reverts `CloneDeploymentFailed`
-    /// on the concrete exactly as on the library — with different `data` on
-    /// the second call, because `data` is outside the namespaced derivation on
-    /// both surfaces.
+    /// Re-deploying at a taken namespaced salt reverts `CloneAddressOccupied`
+    /// naming the address already taken, on the concrete exactly as on the
+    /// library — with different `data` on the second call, because `data` is
+    /// outside the namespaced derivation on both surfaces. The two surfaces
+    /// name different addresses because each derives from its own factory.
     function testEquivalenceCloneDeterministicSaltTaken(
         bytes32 salt,
         bytes memory data,
@@ -309,24 +311,24 @@ contract CloneFactoryLibEquivalenceTest is Test {
         uint256 snapshot = vm.snapshotState();
 
         vm.prank(sender);
-        I_CLONE_FACTORY.cloneDeterministic(address(implementation), data, salt);
+        address concreteClone = I_CLONE_FACTORY.cloneDeterministic(address(implementation), data, salt);
         vm.prank(sender);
-        vm.expectRevert(abi.encodeWithSelector(CloneDeploymentFailed.selector));
+        vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, concreteClone));
         I_CLONE_FACTORY.cloneDeterministic(address(implementation), dataSecond, salt);
 
         vm.revertToState(snapshot);
 
         vm.prank(sender);
-        I_LIB_FACTORY.cloneDeterministic(address(implementation), data, salt);
+        address libClone = I_LIB_FACTORY.cloneDeterministic(address(implementation), data, salt);
         vm.prank(sender);
-        vm.expectRevert(abi.encodeWithSelector(CloneDeploymentFailed.selector));
+        vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, libClone));
         I_LIB_FACTORY.cloneDeterministic(address(implementation), dataSecond, salt);
     }
 
-    /// Re-deploying at a taken open salt reverts `CloneDeploymentFailed` on
-    /// the concrete exactly as on the library — from a different sender on the
-    /// second call, because the caller is outside the open-salt derivation on
-    /// both surfaces.
+    /// Re-deploying at a taken open salt reverts `CloneAddressOccupied` naming
+    /// the address already taken, on the concrete exactly as on the library —
+    /// from a different sender on the second call, because the caller is
+    /// outside the open-salt derivation on both surfaces.
     function testEquivalenceCloneDeterministicOpenSaltSaltTaken(
         bytes32 salt,
         bytes memory data,
@@ -337,17 +339,17 @@ contract CloneFactoryLibEquivalenceTest is Test {
         uint256 snapshot = vm.snapshotState();
 
         vm.prank(sender);
-        I_CLONE_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
+        address concreteClone = I_CLONE_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
         vm.prank(senderSecond);
-        vm.expectRevert(abi.encodeWithSelector(CloneDeploymentFailed.selector));
+        vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, concreteClone));
         I_CLONE_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
 
         vm.revertToState(snapshot);
 
         vm.prank(sender);
-        I_LIB_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
+        address libClone = I_LIB_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
         vm.prank(senderSecond);
-        vm.expectRevert(abi.encodeWithSelector(CloneDeploymentFailed.selector));
+        vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, libClone));
         I_LIB_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
     }
 }

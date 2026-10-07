@@ -5,9 +5,9 @@ pragma solidity =0.8.25;
 // `ICloneableFactoryV3` is imported for the `@inheritdoc` references on the
 // functions it declares; `ICloneableFactoryV4` inherits rather than redeclares
 // them, so the tag must name V3 and V3 must be in scope here.
-import {ICloneableFactoryV3} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV3.sol";
-import {ICloneableFactoryV4} from "rain-factory-0.1.9/src/interface/ICloneableFactoryV4.sol";
-import {LibICloneableFactoryV4} from "rain-factory-0.1.9/src/lib/LibICloneableFactoryV4.sol";
+import {ICloneableFactoryV3} from "rain-factory-0.1.30/src/interface/deprecated/ICloneableFactoryV3.sol";
+import {ICloneableFactoryV4} from "rain-factory-0.1.30/src/interface/ICloneableFactoryV4.sol";
+import {LibICloneableFactoryV4} from "rain-factory-0.1.30/src/lib/LibICloneableFactoryV4.sol";
 
 /// @title TestLibCloneFactory
 /// @notice The library run bare: an external surface over
