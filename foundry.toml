@@ -30,7 +30,18 @@ cbor_metadata = false
 # under `src/`, and reads the release version from this file when `cutRelease()`
 # runs. Nothing else in this repo touches the filesystem.
 fs_permissions = [
+  # READ, not read-write. `BuildScript.regenerateConfig` reads this and
+  # `.env.example` and writes the spliced result to `.staged-config/`: foundry
+  # refuses a cheatcode write to the project root's own `foundry.toml` whatever
+  # is granted here.
   { access = "read", path = "./foundry.toml" },
+  { access = "read", path = "./.env.example" },
+  # Where the spliced files are staged, for `script/build.sh` to install over
+  # the two above. Gitignored; the hook removes it once installed.
+  { access = "read-write", path = "./.staged-config" },
+  # `writeStagedConfig` refuses a repo with no build hook, which is a repo where
+  # nothing would install what it staged.
+  { access = "read", path = "./script/build.sh" },
   { access = "read-write", path = "./src" },
 ]
 libs = ["dependencies"]
@@ -49,29 +60,36 @@ forge-std = "1.17.0"
 [soldeer]
 recursive_deps = false
 
+# rain-deploy:generated:rpc_endpoints:begin
 [rpc_endpoints]
 arbitrum = "${ARBITRUM_RPC_URL}"
 base = "${BASE_RPC_URL}"
 base_sepolia = "${BASE_SEPOLIA_RPC_URL}"
+bsc = "${BSC_RPC_URL}"
 ethereum = "${ETHEREUM_RPC_URL}"
 flare = "${FLARE_RPC_URL}"
 hyperevm = "${HYPEREVM_RPC_URL}"
-robinhood = "${ROBINHOOD_RPC_URL}"
-bsc = "${BSC_RPC_URL}"
 polygon = "${POLYGON_RPC_URL}"
+robinhood = "${ROBINHOOD_RPC_URL}"
+# rain-deploy:generated:rpc_endpoints:end
 
+# Robinhood Chain (4663) is not indexed by Etherscan V2. Its generated entry
+# points at its Blockscout, which speaks the Etherscan API (the key is
+# ignored). That explorer has rejected non-browser clients, so if `--verify`
+# fails there, verify afterwards through Sourcify:
+# `forge verify-contract --verifier sourcify --chain 4663 ...`.
+#
+# This note sits OUTSIDE the markers deliberately: the generator owns every
+# line between them and drops anything it did not write.
+# rain-deploy:generated:etherscan:begin
 [etherscan]
 arbitrum = { key = "${CI_DEPLOY_ARBITRUM_ETHERSCAN_API_KEY}", chain = 42161 }
 base = { key = "${CI_DEPLOY_BASE_ETHERSCAN_API_KEY}", chain = 8453 }
 base_sepolia = { key = "${CI_DEPLOY_BASE_SEPOLIA_ETHERSCAN_API_KEY}", chain = 84532 }
+bsc = { key = "${CI_DEPLOY_BSC_ETHERSCAN_API_KEY}", chain = 56 }
 ethereum = { key = "${CI_DEPLOY_ETHEREUM_ETHERSCAN_API_KEY}", chain = 1 }
 flare = { key = "${CI_DEPLOY_FLARE_ETHERSCAN_API_KEY}", chain = 14 }
 hyperevm = { key = "${CI_DEPLOY_HYPEREVM_ETHERSCAN_API_KEY}", chain = 999 }
-# Robinhood Chain (4663) is not indexed by Etherscan V2. Its Blockscout speaks
-# the Etherscan API, so the entry points there (the key is ignored). That
-# explorer has rejected non-browser clients, so if `--verify` fails there,
-# verify afterwards through Sourcify: `forge verify-contract --verifier
-# sourcify --chain 4663 ...`.
-robinhood = { key = "${CI_DEPLOY_ROBINHOOD_ETHERSCAN_API_KEY}", chain = 4663, url = "https://robinhoodchain.blockscout.com/api" }
-bsc = { key = "${CI_DEPLOY_BSC_ETHERSCAN_API_KEY}", chain = 56 }
 polygon = { key = "${CI_DEPLOY_POLYGON_ETHERSCAN_API_KEY}", chain = 137 }
+robinhood = { key = "${CI_DEPLOY_ROBINHOOD_ETHERSCAN_API_KEY}", chain = 4663, url = "https://robinhoodchain.blockscout.com/api" }
+# rain-deploy:generated:etherscan:end
