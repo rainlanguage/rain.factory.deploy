@@ -14,7 +14,7 @@ import {
     CloneDeploymentFailed,
     InitializationFailed
 } from "rain-factory-0.2.4/src/lib/LibICloneableFactoryV5.sol";
-import {UpgradeableBeacon} from "@openzeppelin-contracts-5.6.1/proxy/beacon/UpgradeableBeacon.sol";
+import {UpgradeableBeacon} from "@openzeppelin-contracts-5.7.0/proxy/beacon/UpgradeableBeacon.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
 import {TestCloneFactory} from "rain-factory-0.2.4/src/test/TestCloneFactory.sol";
 import {TestCloneable} from "rain-factory-0.2.4/src/test/TestCloneable.sol";

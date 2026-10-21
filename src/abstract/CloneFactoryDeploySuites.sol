@@ -6,8 +6,8 @@ import {
     DeployCandidate,
     DeploySuite,
     RainDeploySuitesBase
-} from "rain-deploy-0.1.15/src/abstract/RainDeploySuitesBase.sol";
-import {DeployDependency} from "rain-deploy-0.1.15/src/lib/LibRainDeploy.sol";
+} from "rain-deploy-0.1.18/src/abstract/RainDeploySuitesBase.sol";
+import {DeployDependency} from "rain-deploy-0.1.18/src/lib/LibRainDeploy.sol";
 import {CloneFactory} from "../concrete/CloneFactory.sol";
 import {
     CREATION_CODE as CLONE_FACTORY_CREATION_CODE_CANDIDATE,
