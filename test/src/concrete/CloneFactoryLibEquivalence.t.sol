@@ -4,14 +4,17 @@ pragma solidity =0.8.25;
 
 import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
-import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.1.30/src/interface/ICloneableV2.sol";
+import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.0/src/interface/ICloneableV2.sol";
+import {ICloneableFactoryV5} from "rain-factory-0.2.0/src/interface/ICloneableFactoryV5.sol";
 import {
-    LibICloneableFactoryV4,
+    LibICloneableFactoryV5,
     ZeroImplementationCodeSize,
     CloneAddressOccupied,
+    ZeroBeaconCodeSize,
     CloneDeploymentFailed,
     InitializationFailed
-} from "rain-factory-0.1.30/src/lib/LibICloneableFactoryV4.sol";
+} from "rain-factory-0.2.0/src/lib/LibICloneableFactoryV5.sol";
+import {UpgradeableBeacon} from "@openzeppelin-contracts-5.6.1/proxy/beacon/UpgradeableBeacon.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
 import {TestLibCloneFactory} from "./TestLibCloneFactory.sol";
 import {TestCloneable} from "./TestCloneable.sol";
@@ -19,7 +22,7 @@ import {TestCloneableFailure} from "./TestCloneableFailure.sol";
 
 /// @title CloneFactoryLibEquivalenceTest
 /// @notice Per-function equivalence between the shipped `CloneFactory` and
-/// `LibICloneableFactoryV4`: for every entry point the concrete's observable
+/// `LibICloneableFactoryV5`: for every entry point the concrete's observable
 /// behaviour — return value, deployed code, initialization, `NewClone` event,
 /// typed revert — is held equal to the library's, where the library is
 /// observed two ways at once: as its own pure derivation applied to the
@@ -40,7 +43,7 @@ contract CloneFactoryLibEquivalenceTest is Test {
     }
 
     /// The strongest form of "the concrete only delegates": `CloneFactory`
-    /// and `TestLibCloneFactory` are the same four delegations declared
+    /// and `TestLibCloneFactory` are the same six delegations declared
     /// independently, and with metadata stripped they compile to identical
     /// runtime bytecode. Any behaviour added to the concrete breaks this
     /// before it breaks anything behavioural.
@@ -56,14 +59,14 @@ contract CloneFactoryLibEquivalenceTest is Test {
         external
         view
     {
-        bytes32 effectiveSalt = LibICloneableFactoryV4.effectiveSalt(deployer, salt);
+        bytes32 effectiveSalt = LibICloneableFactoryV5.effectiveSalt(deployer, salt);
         assertEq(
             I_CLONE_FACTORY.predictDeterministicAddress(implementation, salt, deployer),
-            LibICloneableFactoryV4.predictCloneAddress(address(I_CLONE_FACTORY), implementation, effectiveSalt)
+            LibICloneableFactoryV5.predictCloneAddress(address(I_CLONE_FACTORY), implementation, effectiveSalt)
         );
         assertEq(
             I_LIB_FACTORY.predictDeterministicAddress(implementation, salt, deployer),
-            LibICloneableFactoryV4.predictCloneAddress(address(I_LIB_FACTORY), implementation, effectiveSalt)
+            LibICloneableFactoryV5.predictCloneAddress(address(I_LIB_FACTORY), implementation, effectiveSalt)
         );
     }
 
@@ -74,14 +77,14 @@ contract CloneFactoryLibEquivalenceTest is Test {
         external
         view
     {
-        bytes32 effectiveSalt = LibICloneableFactoryV4.effectiveOpenSalt(salt, data);
+        bytes32 effectiveSalt = LibICloneableFactoryV5.effectiveOpenSalt(salt, data);
         assertEq(
             I_CLONE_FACTORY.predictDeterministicAddressOpenSalt(implementation, data, salt),
-            LibICloneableFactoryV4.predictCloneAddress(address(I_CLONE_FACTORY), implementation, effectiveSalt)
+            LibICloneableFactoryV5.predictCloneAddress(address(I_CLONE_FACTORY), implementation, effectiveSalt)
         );
         assertEq(
             I_LIB_FACTORY.predictDeterministicAddressOpenSalt(implementation, data, salt),
-            LibICloneableFactoryV4.predictCloneAddress(address(I_LIB_FACTORY), implementation, effectiveSalt)
+            LibICloneableFactoryV5.predictCloneAddress(address(I_LIB_FACTORY), implementation, effectiveSalt)
         );
     }
 
@@ -97,11 +100,15 @@ contract CloneFactoryLibEquivalenceTest is Test {
         bytes childData;
         /// How many logs the call emitted.
         uint256 logCount;
-        /// The emitter of the sole log.
+        /// The emitter of the first log.
+        address firstEmitter;
+        /// `topics[0]` of the first log.
+        bytes32 firstTopic;
+        /// The emitter of the last log.
         address emitter;
-        /// `topics[0]` of the sole log.
+        /// `topics[0]` of the last log.
         bytes32 eventTopic;
-        /// The abi-encoded body of the sole log.
+        /// The abi-encoded body of the last log.
         bytes eventData;
     }
 
@@ -125,9 +132,12 @@ contract CloneFactoryLibEquivalenceTest is Test {
         observation.childData = TestCloneable(observation.child).sData();
         Vm.Log[] memory entries = vm.getRecordedLogs();
         observation.logCount = entries.length;
-        observation.emitter = entries[0].emitter;
-        observation.eventTopic = entries[0].topics[0];
-        observation.eventData = entries[0].data;
+        observation.firstEmitter = entries[0].emitter;
+        observation.firstTopic = entries[0].topics[0];
+        Vm.Log memory last = entries[entries.length - 1];
+        observation.emitter = last.emitter;
+        observation.eventTopic = last.topics[0];
+        observation.eventData = last.data;
         return observation;
     }
 
@@ -160,10 +170,10 @@ contract CloneFactoryLibEquivalenceTest is Test {
         // Each child is the library's derivation applied to its own factory.
         assertEq(
             concrete.child,
-            LibICloneableFactoryV4.predictCloneAddress(address(I_CLONE_FACTORY), implementation, derivedSalt)
+            LibICloneableFactoryV5.predictCloneAddress(address(I_CLONE_FACTORY), implementation, derivedSalt)
         );
         assertEq(
-            lib.child, LibICloneableFactoryV4.predictCloneAddress(address(I_LIB_FACTORY), implementation, derivedSalt)
+            lib.child, LibICloneableFactoryV5.predictCloneAddress(address(I_LIB_FACTORY), implementation, derivedSalt)
         );
 
         // Same deployed code and same initialized state.
@@ -188,7 +198,7 @@ contract CloneFactoryLibEquivalenceTest is Test {
         TestCloneable implementation = new TestCloneable();
         checkCloneEquivalence(
             abi.encodeCall(CloneFactory.cloneDeterministic, (address(implementation), data, salt)),
-            LibICloneableFactoryV4.effectiveSalt(sender, salt),
+            LibICloneableFactoryV5.effectiveSalt(sender, salt),
             address(implementation),
             data,
             salt,
@@ -202,7 +212,7 @@ contract CloneFactoryLibEquivalenceTest is Test {
         TestCloneable implementation = new TestCloneable();
         checkCloneEquivalence(
             abi.encodeCall(CloneFactory.cloneDeterministicOpenSalt, (address(implementation), data, salt)),
-            LibICloneableFactoryV4.effectiveOpenSalt(salt, data),
+            LibICloneableFactoryV5.effectiveOpenSalt(salt, data),
             address(implementation),
             data,
             salt,
@@ -351,5 +361,113 @@ contract CloneFactoryLibEquivalenceTest is Test {
         vm.prank(senderSecond);
         vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, libClone));
         I_LIB_FACTORY.cloneDeterministicOpenSalt(address(implementation), data, salt);
+    }
+
+    /// `predictBeaconProxyAddressOpenSalt` is the library's beacon proxy
+    /// derivation applied to each factory's own address.
+    function testEquivalencePredictBeaconProxyAddressOpenSalt(address beacon, bytes memory data, bytes32 salt)
+        external
+        view
+    {
+        bytes32 effectiveSalt = LibICloneableFactoryV5.effectiveBeaconProxyOpenSalt(salt, data);
+        assertEq(
+            I_CLONE_FACTORY.predictBeaconProxyAddressOpenSalt(beacon, data, salt),
+            LibICloneableFactoryV5.predictBeaconProxyAddress(address(I_CLONE_FACTORY), beacon, effectiveSalt)
+        );
+        assertEq(
+            I_LIB_FACTORY.predictBeaconProxyAddressOpenSalt(beacon, data, salt),
+            LibICloneableFactoryV5.predictBeaconProxyAddress(address(I_LIB_FACTORY), beacon, effectiveSalt)
+        );
+    }
+
+    /// `beaconProxyDeterministicOpenSalt` success path: from identical state,
+    /// the concrete and the bare library each deploy at the library's
+    /// derivation for their own address, with the same code and initialized
+    /// state, and each emits, after the proxy's own `BeaconUpgraded`, one
+    /// `NewBeaconProxy` about its own proxy.
+    function testEquivalenceBeaconProxyDeterministicOpenSalt(bytes32 salt, bytes memory data, address sender) external {
+        address beacon = address(new UpgradeableBeacon(address(new TestCloneable()), address(this)));
+        bytes memory factoryCall = abi.encodeCall(CloneFactory.beaconProxyDeterministicOpenSalt, (beacon, data, salt));
+        bytes32 derivedSalt = LibICloneableFactoryV5.effectiveBeaconProxyOpenSalt(salt, data);
+
+        uint256 snapshot = vm.snapshotState();
+        CloneObservation memory concrete = observeClone(address(I_CLONE_FACTORY), factoryCall, sender);
+        vm.revertToState(snapshot);
+        CloneObservation memory lib = observeClone(address(I_LIB_FACTORY), factoryCall, sender);
+
+        assertEq(
+            concrete.child,
+            LibICloneableFactoryV5.predictBeaconProxyAddress(address(I_CLONE_FACTORY), beacon, derivedSalt)
+        );
+        assertEq(
+            lib.child, LibICloneableFactoryV5.predictBeaconProxyAddress(address(I_LIB_FACTORY), beacon, derivedSalt)
+        );
+
+        assertEq(concrete.childCode, lib.childCode);
+        assertEq(concrete.childData, lib.childData);
+        assertEq(concrete.childData, data);
+
+        assertEq(concrete.logCount, 2);
+        assertEq(lib.logCount, 2);
+        assertEq(concrete.firstEmitter, concrete.child);
+        assertEq(lib.firstEmitter, lib.child);
+        assertEq(concrete.firstTopic, keccak256("BeaconUpgraded(address)"));
+        assertEq(lib.firstTopic, keccak256("BeaconUpgraded(address)"));
+        assertEq(concrete.emitter, address(I_CLONE_FACTORY));
+        assertEq(lib.emitter, address(I_LIB_FACTORY));
+        assertEq(concrete.eventTopic, ICloneableFactoryV5.NewBeaconProxy.selector);
+        assertEq(lib.eventTopic, ICloneableFactoryV5.NewBeaconProxy.selector);
+        assertEq(concrete.eventData, abi.encode(sender, beacon, concrete.child, salt, data));
+        assertEq(lib.eventData, abi.encode(sender, beacon, lib.child, salt, data));
+    }
+
+    /// A codeless beacon reverts `ZeroBeaconCodeSize` on the concrete exactly
+    /// as on the library.
+    function testEquivalenceBeaconProxyZeroBeaconCode(address beacon, bytes memory data, bytes32 salt, address sender)
+        external
+    {
+        vm.assume(beacon.code.length == 0);
+        checkRevertEquivalence(
+            abi.encodeCall(CloneFactory.beaconProxyDeterministicOpenSalt, (beacon, data, salt)),
+            abi.encodeWithSelector(ZeroBeaconCodeSize.selector),
+            sender
+        );
+    }
+
+    /// A beacon serving an implementation that initializes to a non-success
+    /// code reverts `InitializationFailed` on the concrete exactly as on the
+    /// library.
+    function testEquivalenceBeaconProxyInitFailure(bytes32 notSuccess, bytes32 salt, address sender) external {
+        vm.assume(notSuccess != ICLONEABLE_V2_SUCCESS);
+        address beacon = address(new UpgradeableBeacon(address(new TestCloneableFailure()), address(this)));
+        checkRevertEquivalence(
+            abi.encodeCall(CloneFactory.beaconProxyDeterministicOpenSalt, (beacon, abi.encode(notSuccess), salt)),
+            abi.encodeWithSelector(InitializationFailed.selector),
+            sender
+        );
+    }
+
+    /// Re-deploying at a taken beacon proxy open salt reverts
+    /// `CloneAddressOccupied` naming the address already taken, on the
+    /// concrete exactly as on the library, from a different sender.
+    function testEquivalenceBeaconProxySaltTaken(bytes32 salt, bytes memory data, address sender, address senderSecond)
+        external
+    {
+        address beacon = address(new UpgradeableBeacon(address(new TestCloneable()), address(this)));
+        uint256 snapshot = vm.snapshotState();
+
+        vm.prank(sender);
+        address concreteProxy = I_CLONE_FACTORY.beaconProxyDeterministicOpenSalt(beacon, data, salt);
+        vm.prank(senderSecond);
+        vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, concreteProxy));
+        I_CLONE_FACTORY.beaconProxyDeterministicOpenSalt(beacon, data, salt);
+
+        vm.revertToState(snapshot);
+
+        vm.prank(sender);
+        address libProxy = I_LIB_FACTORY.beaconProxyDeterministicOpenSalt(beacon, data, salt);
+        vm.prank(senderSecond);
+        vm.expectRevert(abi.encodeWithSelector(CloneAddressOccupied.selector, libProxy));
+        I_LIB_FACTORY.beaconProxyDeterministicOpenSalt(beacon, data, salt);
     }
 }
