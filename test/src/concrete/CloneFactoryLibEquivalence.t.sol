@@ -4,8 +4,8 @@ pragma solidity =0.8.25;
 
 import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
-import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.0/src/interface/ICloneableV2.sol";
-import {ICloneableFactoryV5} from "rain-factory-0.2.0/src/interface/ICloneableFactoryV5.sol";
+import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.3/src/interface/ICloneableV2.sol";
+import {ICloneableFactoryV5} from "rain-factory-0.2.3/src/interface/ICloneableFactoryV5.sol";
 import {
     LibICloneableFactoryV5,
     ZeroImplementationCodeSize,
@@ -13,12 +13,12 @@ import {
     ZeroBeaconCodeSize,
     CloneDeploymentFailed,
     InitializationFailed
-} from "rain-factory-0.2.0/src/lib/LibICloneableFactoryV5.sol";
+} from "rain-factory-0.2.3/src/lib/LibICloneableFactoryV5.sol";
 import {UpgradeableBeacon} from "@openzeppelin-contracts-5.6.1/proxy/beacon/UpgradeableBeacon.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
-import {TestLibCloneFactory} from "./TestLibCloneFactory.sol";
-import {TestCloneable} from "./TestCloneable.sol";
-import {TestCloneableFailure} from "./TestCloneableFailure.sol";
+import {TestCloneFactory} from "rain-factory-0.2.3/src/test/TestCloneFactory.sol";
+import {TestCloneable} from "rain-factory-0.2.3/src/test/TestCloneable.sol";
+import {TestCloneableFailure} from "rain-factory-0.2.3/src/test/TestCloneableFailure.sol";
 
 /// @title CloneFactoryLibEquivalenceTest
 /// @notice Per-function equivalence between the shipped `CloneFactory` and
@@ -26,29 +26,29 @@ import {TestCloneableFailure} from "./TestCloneableFailure.sol";
 /// behaviour — return value, deployed code, initialization, `NewClone` event,
 /// typed revert — is held equal to the library's, where the library is
 /// observed two ways at once: as its own pure derivation applied to the
-/// concrete's address, and as `TestLibCloneFactory`, the library run bare
-/// behind an independent delegating surface, exercised from identical chain
-/// state via snapshot and rollback. A concrete that grows any behaviour
+/// concrete's address, and as rain-factory's `TestCloneFactory`, the library
+/// run bare behind an independent delegating surface, exercised from identical
+/// chain state via snapshot and rollback. A concrete that grows any behaviour
 /// beyond delegation diverges from one or the other and fails here.
 contract CloneFactoryLibEquivalenceTest is Test {
     /// The shipped concrete under test. Stateless, so reused everywhere.
     CloneFactory internal immutable I_CLONE_FACTORY;
 
     /// The library run bare behind an independent delegating surface.
-    TestLibCloneFactory internal immutable I_LIB_FACTORY;
+    TestCloneFactory internal immutable I_LIB_FACTORY;
 
     constructor() {
         I_CLONE_FACTORY = new CloneFactory();
-        I_LIB_FACTORY = new TestLibCloneFactory();
+        I_LIB_FACTORY = new TestCloneFactory();
     }
 
     /// The strongest form of "the concrete only delegates": `CloneFactory`
-    /// and `TestLibCloneFactory` are the same six delegations declared
-    /// independently, and with metadata stripped they compile to identical
-    /// runtime bytecode. Any behaviour added to the concrete breaks this
+    /// and rain-factory's `TestCloneFactory` are the same six delegations
+    /// declared independently, and with metadata stripped they compile to
+    /// identical runtime bytecode. Any behaviour added to the concrete breaks this
     /// before it breaks anything behavioural.
     function testEquivalenceRuntimeBytecode() external pure {
-        assertEq(type(CloneFactory).runtimeCode, type(TestLibCloneFactory).runtimeCode);
+        assertEq(type(CloneFactory).runtimeCode, type(TestCloneFactory).runtimeCode);
     }
 
     /// `predictDeterministicAddress` is the library's namespaced derivation

@@ -8,9 +8,9 @@ import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.1/src/lib/LibExtrospectERC1167Proxy.sol";
 import {
     ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN
-} from "rain-factory-0.2.0/src/interface/deprecated/ICloneableFactoryV4.sol";
+} from "rain-factory-0.2.3/src/interface/deprecated/ICloneableFactoryV4.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
-import {TestCloneable} from "./TestCloneable.sol";
+import {TestCloneable} from "rain-factory-0.2.3/src/test/TestCloneable.sol";
 
 contract CloneFactoryCloneDeterministicOpenSaltTest is Test {
     CloneFactory internal immutable I_CLONE_FACTORY;
