@@ -7,8 +7,8 @@ discoverable and deliberately absent (rainlanguage/rainix#298).
 ## What this repo is
 
 rain.factory.deploy is the **deploy half** of `rain.factory`: the concrete
-`CloneFactory` (an `ICloneableFactoryV4` that is nothing but one delegation per
-entry point into `LibICloneableFactoryV4` — there is no plain `clone()`) plus
+`CloneFactory` (an `ICloneableFactoryV5` that is nothing but one delegation per
+entry point into `LibICloneableFactoryV5` — there is no plain `clone()`) plus
 its deployed address + codehash pins. The `ICloneable*` **interfaces and the
 factory logic are NOT here** — they live in `rain.factory` and arrive as the
 `rain-factory` Soldeer dependency (`dependencies/rain-factory-<version>/src/`).

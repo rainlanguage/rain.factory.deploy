@@ -1,0 +1,39 @@
+name: Manual sol verify
+# Explorer source verification for a factory that is ALREADY on chain, run by
+# hand.
+#
+# `manual-sol-artifacts.yaml` submits source only for what its own run
+# broadcast, and a deterministic deploy is idempotent: a rerun against networks
+# that already hold the code broadcasts nothing, so `--verify` has nothing to
+# submit and the run is green having verified nothing. A deploy that landed and
+# then failed verification is repaired here instead.
+#
+# `workflow_dispatch` only, like the deploy. Unlike the deploy this never
+# broadcasts and never reads a deploy key: `forge verify-contract` talks to the
+# explorer API and nothing else, so it is safe to re-run and is a no-op against
+# an explorer that already holds the source.
+on:
+  workflow_dispatch:
+    inputs:
+      contract:
+        type: string
+        required: true
+        default: src/concrete/CloneFactory.sol:CloneFactory
+        description: |
+          Artifact path of the contract to submit, `path:Contract`. The
+          compiler settings come from this repo's `foundry.toml`, so they are
+          the ones the creation code on chain was built with.
+      address:
+        type: string
+        required: true
+        description: |
+          The deployed address. One value for every network, because the salt
+          derives one address from the creation code — so a release's own
+          `src/generated/<tag>/CloneFactory.sol` is where it comes from.
+jobs:
+  verify:
+    uses: rainlanguage/rainix/.github/workflows/rainix-manual-sol-verify.yaml@main
+    with:
+      contract: ${{ inputs.contract }}
+      address: ${{ inputs.address }}
+    secrets: inherit

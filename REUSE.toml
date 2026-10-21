@@ -5,6 +5,7 @@ path = [
   ".github/workflows/**/",
   ".vscode/**/",
   ".coderabbitai.yaml",
+  ".env.example",
   ".gitignore",
   "audit/**/",
   "CLAUDE.md",
