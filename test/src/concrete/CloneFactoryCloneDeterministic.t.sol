@@ -6,14 +6,14 @@ import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
 import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.1/src/lib/LibExtrospectERC1167Proxy.sol";
-import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.0/src/interface/ICloneableV2.sol";
+import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.4/src/interface/ICloneableV2.sol";
 import {
     ICLONEABLE_FACTORY_V4_NAMESPACED_DOMAIN
-} from "rain-factory-0.2.0/src/interface/deprecated/ICloneableFactoryV4.sol";
-import {ZeroImplementationCodeSize, InitializationFailed} from "rain-factory-0.2.0/src/lib/LibICloneableFactoryV5.sol";
+} from "rain-factory-0.2.4/src/interface/deprecated/ICloneableFactoryV4.sol";
+import {ZeroImplementationCodeSize, InitializationFailed} from "rain-factory-0.2.4/src/lib/LibICloneableFactoryV5.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
-import {TestCloneable} from "./TestCloneable.sol";
-import {TestCloneableFailure} from "./TestCloneableFailure.sol";
+import {TestCloneable} from "rain-factory-0.2.4/src/test/TestCloneable.sol";
+import {TestCloneableFailure} from "rain-factory-0.2.4/src/test/TestCloneableFailure.sol";
 
 /// @title CloneFactoryCloneDeterministicTest
 /// @notice A test suite for `CloneFactory`'s `cloneDeterministic` /
