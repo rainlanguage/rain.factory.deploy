@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {Test, Vm} from "forge-std-1.16.2/src/Test.sol";
+import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
-import {LibRainDeploySnapshot} from "rain-deploy-0.1.8/src/lib/LibRainDeploySnapshot.sol";
-import {DeployCandidate, DeploySuite} from "src/abstract/RainDeploySuitesBase.sol";
+import {LibRainDeploySnapshot} from "rain-deploy-0.1.15/src/lib/LibRainDeploySnapshot.sol";
+import {DeployCandidate, DeploySuite} from "rain-deploy-0.1.15/src/abstract/RainDeploySuitesBase.sol";
 import {CloneFactoryDeploySuites} from "src/abstract/CloneFactoryDeploySuites.sol";
 
 contract CloneFactoryDeploySuitesDeclarationTest is CloneFactoryDeploySuites, Test {
