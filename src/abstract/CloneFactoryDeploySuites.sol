@@ -2,7 +2,12 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity ^0.8.25;
 
-import {DeployCandidate, DeploySuite, RainDeploySuitesBase} from "./RainDeploySuitesBase.sol";
+import {
+    DeployCandidate,
+    DeploySuite,
+    RainDeploySuitesBase
+} from "rain-deploy-0.1.15/src/abstract/RainDeploySuitesBase.sol";
+import {DeployDependency} from "rain-deploy-0.1.15/src/lib/LibRainDeploy.sol";
 import {CloneFactory} from "../concrete/CloneFactory.sol";
 import {
     CREATION_CODE as CLONE_FACTORY_CREATION_CODE_CANDIDATE,
@@ -51,9 +56,9 @@ abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
                 storedBytecodeHash: LibCloneFactoryDeploy.CLONE_FACTORY_DEPLOYED_CODEHASH,
                 storedRuntimeCode: CLONE_FACTORY_RUNTIME_CODE_CANDIDATE,
                 artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
-                dependencies: new address[](0)
+                dependencies: new DeployDependency[](0)
             }),
-            sourceCreationCode: type(CloneFactory).creationCode
+            unanchorableReason: ""
         });
     }
 }
