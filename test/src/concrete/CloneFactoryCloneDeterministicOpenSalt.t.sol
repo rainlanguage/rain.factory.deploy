@@ -6,7 +6,9 @@ import {Test} from "forge-std-1.17.0/src/Test.sol";
 
 import {Clones} from "@openzeppelin-contracts-5.6.1/proxy/Clones.sol";
 import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.1/src/lib/LibExtrospectERC1167Proxy.sol";
-import {ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN} from "rain-factory-0.1.30/src/interface/ICloneableFactoryV4.sol";
+import {
+    ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN
+} from "rain-factory-0.2.0/src/interface/deprecated/ICloneableFactoryV4.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
 import {TestCloneable} from "./TestCloneable.sol";
 
