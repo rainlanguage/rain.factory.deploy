@@ -6,7 +6,7 @@ its deployed address + codehash pins (`LibCloneFactoryDeploy`), the rolling
 snapshots under `src/generated/<tag>/`, and the deploy script.
 
 The **library** half — the `ICloneable*` interfaces and
-`LibICloneableFactoryV4`, which carries the whole of the factory logic — lives
+`LibICloneableFactoryV5`, which carries the whole of the factory logic — lives
 in [`rain.factory`](https://github.com/rainlanguage/rain.factory) and is
 imported here as the `rain-factory` Soldeer package. The concrete `CloneFactory`
 is one delegation per entry point into that library and adds no behaviour of its
