@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-// `ICloneableFactoryV3`, `V4` and `V5` are imported for the `@inheritdoc`
-// references on the functions they declare; `ICloneableFactoryV6` inherits
-// rather than redeclares them, so each tag must name the declaring
-// interface and it must be in scope here.
+// `ICloneableFactoryV3` and `V5` are imported for the `@inheritdoc` references
+// on the functions they declare; `ICloneableFactoryV6` inherits rather than
+// redeclares them, so each tag must name the declaring interface and it must be
+// in scope here. `ICloneableFactoryV4` documents `cloneDeterministicOpenSalt`
+// and its predictor; no current rain-factory file re-exports it.
 import {ICloneableFactoryV3} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
-import {ICloneableFactoryV4} from "rain-factory-0.2.5/src/interface/deprecated/ICloneableFactoryV4.sol";
 import {ICloneableFactoryV5, ICloneableFactoryV6} from "rain-factory-0.2.5/src/interface/ICloneableFactoryV6.sol";
 import {LibICloneableFactoryV5} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
 import {LibICloneableFactoryV6} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV6.sol";
@@ -42,7 +42,6 @@ contract CloneFactory is ICloneableFactoryV6 {
         return LibICloneableFactoryV5.predictDeterministicAddress(implementation, salt, deployer);
     }
 
-    /// @inheritdoc ICloneableFactoryV4
     function cloneDeterministicOpenSalt(address implementation, bytes calldata data, bytes32 salt)
         external
         returns (address)
@@ -50,7 +49,6 @@ contract CloneFactory is ICloneableFactoryV6 {
         return LibICloneableFactoryV5.cloneDeterministicOpenSalt(implementation, data, salt);
     }
 
-    /// @inheritdoc ICloneableFactoryV4
     function predictDeterministicAddressOpenSalt(address implementation, bytes calldata data, bytes32 salt)
         external
         view
