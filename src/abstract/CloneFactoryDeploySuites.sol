@@ -4,10 +4,11 @@ pragma solidity ^0.8.25;
 
 import {
     DeployCandidate,
+    DeployMechanism,
     DeploySuite,
     RainDeploySuitesBase
-} from "rain-deploy-0.1.18/src/abstract/RainDeploySuitesBase.sol";
-import {DeployDependency} from "rain-deploy-0.1.18/src/lib/LibRainDeploy.sol";
+} from "rain-deploy-0.1.20/src/abstract/RainDeploySuitesBase.sol";
+import {DeployDependency} from "rain-deploy-0.1.20/src/lib/LibRainDeploy.sol";
 import {CloneFactory} from "../concrete/CloneFactory.sol";
 import {
     CREATION_CODE as CLONE_FACTORY_CREATION_CODE_CANDIDATE,
@@ -56,7 +57,9 @@ abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
                 storedBytecodeHash: LibCloneFactoryDeploy.CLONE_FACTORY_DEPLOYED_CODEHASH,
                 storedRuntimeCode: CLONE_FACTORY_RUNTIME_CODE_CANDIDATE,
                 artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
-                dependencies: new DeployDependency[](0)
+                dependencies: new DeployDependency[](0),
+                mechanism: DeployMechanism.Zoltu,
+                mechanismData: ""
             }),
             unanchorableReason: ""
         });
