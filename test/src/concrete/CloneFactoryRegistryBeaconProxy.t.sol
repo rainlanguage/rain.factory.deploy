@@ -66,10 +66,9 @@ contract CloneFactoryRegistryBeaconProxyTest is Test {
         address beacon = address(new UpgradeableBeacon(address(new TestCloneable()), address(this)));
         iRegistry.bind(AUTHORITY, BEACON_NAME, abi.encode(beacon));
         uint256 start = vm.snapshotState();
-        address concreteProxy = deploy(iCloneFactory, beacon, data, salt);
+        bytes32 concreteCodehash = deploy(iCloneFactory, beacon, data, salt).codehash;
         vm.revertToState(start);
-        address libProxy = deploy(iLibFactory, beacon, data, salt);
-        assertEq(concreteProxy.codehash, libProxy.codehash);
+        assertEq(deploy(iLibFactory, beacon, data, salt).codehash, concreteCodehash);
     }
 
     /// An unbound name reverts the same through both factories.
