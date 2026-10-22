@@ -5,7 +5,7 @@ pragma solidity =0.8.25;
 import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
 import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.5/src/interface/ICloneableV2.sol";
-import {ICloneableFactoryV5} from "rain-factory-0.2.5/src/interface/deprecated/ICloneableFactoryV5.sol";
+import {ICloneableFactoryV5} from "rain-factory-0.2.5/src/interface/ICloneableFactoryV6.sol";
 import {
     LibICloneableFactoryV5,
     ZeroImplementationCodeSize,

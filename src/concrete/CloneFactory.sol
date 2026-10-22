@@ -6,10 +6,9 @@ pragma solidity =0.8.25;
 // references on the functions they declare; `ICloneableFactoryV6` inherits
 // rather than redeclares them, so each tag must name the declaring
 // interface and it must be in scope here.
-import {ICloneableFactoryV3} from "rain-factory-0.2.5/src/interface/deprecated/ICloneableFactoryV3.sol";
+import {ICloneableFactoryV3} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
 import {ICloneableFactoryV4} from "rain-factory-0.2.5/src/interface/deprecated/ICloneableFactoryV4.sol";
-import {ICloneableFactoryV5} from "rain-factory-0.2.5/src/interface/deprecated/ICloneableFactoryV5.sol";
-import {ICloneableFactoryV6} from "rain-factory-0.2.5/src/interface/ICloneableFactoryV6.sol";
+import {ICloneableFactoryV5, ICloneableFactoryV6} from "rain-factory-0.2.5/src/interface/ICloneableFactoryV6.sol";
 import {LibICloneableFactoryV5} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
 import {LibICloneableFactoryV6} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV6.sol";
 
