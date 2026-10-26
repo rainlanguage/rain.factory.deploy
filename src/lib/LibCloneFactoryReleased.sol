@@ -94,6 +94,14 @@ import {
     DEPENDENCIES as CloneFactory_0_2_2_DEPENDENCIES
 } from "../generated/0_2_2/CloneFactory.sol";
 
+import {
+    DEPLOYED_ADDRESS as CloneFactory_0_2_3_DEPLOYED_ADDRESS,
+    BYTECODE_HASH as CloneFactory_0_2_3_BYTECODE_HASH,
+    CREATION_CODE as CloneFactory_0_2_3_CREATION_CODE,
+    RUNTIME_CODE as CloneFactory_0_2_3_RUNTIME_CODE,
+    DEPENDENCIES as CloneFactory_0_2_3_DEPENDENCIES
+} from "../generated/0_2_3/CloneFactory.sol";
+
 /// @title LibCloneFactoryReleased
 /// @notice Every frozen release of `CloneFactory`: one entry per file in
 /// the append-only `src/generated/<tag>/` record, in tag order.
@@ -114,7 +122,7 @@ library LibCloneFactoryReleased {
     /// Every frozen release, in tag order.
     /// @return The released suites.
     function releasedSuites() internal pure returns (DeploySuite[] memory) {
-        DeploySuite[] memory suites = new DeploySuite[](11);
+        DeploySuite[] memory suites = new DeploySuite[](12);
         suites[0] = DeploySuite({
             suite: "clone-factory@0_1_1",
             creationCode: CloneFactory_0_1_1_CREATION_CODE,
@@ -233,6 +241,17 @@ library LibCloneFactoryReleased {
             storedRuntimeCode: CloneFactory_0_2_2_RUNTIME_CODE,
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_2_DEPENDENCIES, (DeployDependency[])),
+            mechanism: DeployMechanism.Zoltu,
+            mechanismData: ""
+        });
+        suites[11] = DeploySuite({
+            suite: "clone-factory@0_2_3",
+            creationCode: CloneFactory_0_2_3_CREATION_CODE,
+            storedDeployedAddress: CloneFactory_0_2_3_DEPLOYED_ADDRESS,
+            storedBytecodeHash: CloneFactory_0_2_3_BYTECODE_HASH,
+            storedRuntimeCode: CloneFactory_0_2_3_RUNTIME_CODE,
+            artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
+            dependencies: abi.decode(CloneFactory_0_2_3_DEPENDENCIES, (DeployDependency[])),
             mechanism: DeployMechanism.Zoltu,
             mechanismData: ""
         });
