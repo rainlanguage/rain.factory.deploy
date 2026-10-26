@@ -5,7 +5,7 @@ pragma solidity =0.8.25;
 import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
 import {Clones} from "@openzeppelin-contracts-5.7.0/proxy/Clones.sol";
-import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.14/src/lib/LibExtrospectERC1167Proxy.sol";
+import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.16/src/lib/LibExtrospectERC1167Proxy.sol";
 import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.5/src/interface/ICloneableV2.sol";
 import {ICLONEABLE_FACTORY_V4_NAMESPACED_DOMAIN} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
 import {ZeroImplementationCodeSize, InitializationFailed} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
