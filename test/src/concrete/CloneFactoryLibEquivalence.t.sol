@@ -4,8 +4,8 @@ pragma solidity =0.8.25;
 
 import {Test, Vm} from "forge-std-1.17.0/src/Test.sol";
 
-import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.5/src/interface/ICloneableV2.sol";
-import {ICloneableFactoryV5} from "rain-factory-0.2.5/src/interface/ICloneableFactoryV6.sol";
+import {ICLONEABLE_V2_SUCCESS} from "rain-factory-0.2.6/src/interface/ICloneableV2.sol";
+import {ICloneableFactoryV5} from "rain-factory-0.2.6/src/interface/ICloneableFactoryV7.sol";
 import {
     LibICloneableFactoryV5,
     ZeroImplementationCodeSize,
@@ -13,12 +13,12 @@ import {
     ZeroBeaconCodeSize,
     CloneDeploymentFailed,
     InitializationFailed
-} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
+} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV5.sol";
 import {UpgradeableBeacon} from "@openzeppelin-contracts-5.7.0/proxy/beacon/UpgradeableBeacon.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
-import {TestCloneFactory} from "rain-factory-0.2.5/src/test/TestCloneFactory.sol";
-import {TestCloneable} from "rain-factory-0.2.5/src/test/TestCloneable.sol";
-import {TestCloneableFailure} from "rain-factory-0.2.5/src/test/TestCloneableFailure.sol";
+import {TestCloneFactory} from "rain-factory-0.2.6/src/test/TestCloneFactory.sol";
+import {TestCloneable} from "rain-factory-0.2.6/src/test/TestCloneable.sol";
+import {TestCloneableFailure} from "rain-factory-0.2.6/src/test/TestCloneableFailure.sol";
 
 /// @title CloneFactoryLibEquivalenceTest
 /// @notice Per-function equivalence between the shipped `CloneFactory` and

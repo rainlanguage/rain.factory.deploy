@@ -6,9 +6,9 @@ import {Test} from "forge-std-1.17.0/src/Test.sol";
 
 import {Clones} from "@openzeppelin-contracts-5.7.0/proxy/Clones.sol";
 import {LibExtrospectERC1167Proxy} from "rain-extrospection-0.1.16/src/lib/LibExtrospectERC1167Proxy.sol";
-import {ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN} from "rain-factory-0.2.5/src/lib/LibICloneableFactoryV5.sol";
+import {ICLONEABLE_FACTORY_V4_OPEN_SALT_DOMAIN} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV5.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
-import {TestCloneable} from "rain-factory-0.2.5/src/test/TestCloneable.sol";
+import {TestCloneable} from "rain-factory-0.2.6/src/test/TestCloneable.sol";
 
 contract CloneFactoryCloneDeterministicOpenSaltTest is Test {
     CloneFactory internal immutable I_CLONE_FACTORY;
