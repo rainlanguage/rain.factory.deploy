@@ -3,6 +3,7 @@ version = 1
 [[annotations]]
 path = [
   ".github/workflows/**/",
+  ".github/pull_request_template.md",
   ".vscode/**/",
   ".coderabbitai.yaml",
   ".env.example",
