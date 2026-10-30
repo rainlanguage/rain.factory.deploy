@@ -19,4 +19,8 @@ contract CloneFactoryDeploySuitesTest is CloneFactoryDeploySuites, RainDeployDec
     function testDependenciesAreTheEmbeddedDeployments() external pure {
         checkDependenciesAreTheEmbeddedDeployments(declaration());
     }
+
+    function testDispatchChoicesAreTheSuiteKeys() external view {
+        checkDispatchChoicesAreTheSuiteKeys(declaration());
+    }
 }
