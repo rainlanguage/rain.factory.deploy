@@ -6,14 +6,14 @@ import {Test} from "forge-std-1.17.0/src/Test.sol";
 import {Create2} from "@openzeppelin-contracts-5.7.0/utils/Create2.sol";
 import {UpgradeableBeacon} from "@openzeppelin-contracts-5.7.0/proxy/beacon/UpgradeableBeacon.sol";
 import {ERC1967Utils} from "@openzeppelin-contracts-5.7.0/proxy/ERC1967/ERC1967Utils.sol";
-import {ICloneableFactoryV7} from "rain-factory-0.2.6/src/interface/ICloneableFactoryV7.sol";
+import {ICloneableFactoryV7} from "rain-factory-0.2.7/src/interface/ICloneableFactoryV7.sol";
 import {
     LibICloneableFactoryV7,
     NonCanonicalBeaconBinding,
     BeaconBindingTypeMismatch
-} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV7.sol";
-import {TestCloneFactory} from "rain-factory-0.2.6/src/test/TestCloneFactory.sol";
-import {TestCloneable} from "rain-factory-0.2.6/src/test/TestCloneable.sol";
+} from "rain-factory-0.2.7/src/lib/LibICloneableFactoryV7.sol";
+import {TestCloneFactory} from "rain-factory-0.2.7/src/test/TestCloneFactory.sol";
+import {TestCloneable} from "rain-factory-0.2.7/src/test/TestCloneable.sol";
 import {CloneFactory} from "../../../src/concrete/CloneFactory.sol";
 import {TestRegistryBeaconSource, TestNameNotRegistered} from "../../concrete/TestRegistryBeaconSource.sol";
 

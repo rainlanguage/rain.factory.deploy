@@ -53,10 +53,10 @@ runs = 2048
 forge-std = "1.17.0"
 "@openzeppelin-contracts" = "5.7.0"
 "rain-extrospection" = "0.1.16"
-"rain-deploy" = "0.1.27"
+"rain-deploy" = "0.1.29"
 "rain-metadata" = "0.1.43"
 "rain-sol-codegen" = "0.1.39"
-"rain-factory" = "0.2.6"
+"rain-factory" = "0.2.7"
 
 [soldeer]
 recursive_deps = false
