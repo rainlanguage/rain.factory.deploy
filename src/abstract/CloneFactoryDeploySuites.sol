@@ -4,11 +4,13 @@ pragma solidity ^0.8.25;
 
 import {
     DeployCandidate,
-    DeployMechanism,
+    DeployDeclaration,
+    DeployDependency,
     DeploySuite,
     RainDeploySuitesBase
-} from "rain-deploy-0.1.26/src/abstract/RainDeploySuitesBase.sol";
-import {DeployDependency} from "rain-deploy-0.1.26/src/lib/LibRainDeploy.sol";
+} from "rain-deploy-0.1.29/src/abstract/RainDeploySuitesBase.sol";
+import {LibRainDeployDeclaration} from "rain-deploy-0.1.29/src/lib/LibRainDeployDeclaration.sol";
+import {LibRainDeployZoltuMechanism} from "rain-deploy-0.1.29/src/lib/LibRainDeployZoltuMechanism.sol";
 import {CloneFactory} from "../concrete/CloneFactory.sol";
 import {
     CREATION_CODE as CLONE_FACTORY_CREATION_CODE_CANDIDATE,
@@ -27,21 +29,23 @@ import {LibReleasedSuites} from "../lib/LibReleasedSuites.sol";
 /// `test/` from the published package, and in a deploy repo the deployment
 /// process is the product.
 abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
-    /// @inheritdoc RainDeploySuitesBase
-    function releasedSuites() internal pure override returns (DeploySuite[] memory) {
-        return LibReleasedSuites.releasedSuites();
-    }
-
-    /// @inheritdoc RainDeploySuitesBase
-    function candidateSuites() internal pure override returns (DeployCandidate[] memory) {
+    /// This repo's declaration: every Rain network, Zoltu, the generated
+    /// releases and `cloneFactoryCandidate()`.
+    /// @return The declaration.
+    function declaration() internal pure override returns (DeployDeclaration memory) {
+        DeployDeclaration memory declared;
+        LibRainDeployDeclaration.extend(declared);
+        LibRainDeployZoltuMechanism.extend(declared);
+        LibRainDeployDeclaration.addReleased(declared, LibReleasedSuites.releasedSuites());
         DeployCandidate[] memory candidates = new DeployCandidate[](1);
         candidates[0] = cloneFactoryCandidate();
-        return candidates;
+        LibRainDeployDeclaration.addCandidates(declared, candidates);
+        return declared;
     }
 
     /// This repo's rolling `CloneFactory` candidate. Named rather than reached
-    /// by index into `candidateSuites`, because `script/Build.sol` emits the
-    /// released-suites lib from THIS candidate specifically, and naming it
+    /// by index into the declared candidates, because `script/Build.sol` emits
+    /// the released-suites lib from THIS candidate specifically, and naming it
     /// keeps the suite key, the artifact path and the dependency list spelled
     /// once.
     ///
@@ -51,6 +55,7 @@ abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
     function cloneFactoryCandidate() internal pure returns (DeployCandidate memory) {
         return DeployCandidate({
             snapshot: DeploySuite({
+                networks: new string[](0),
                 suite: "clone-factory",
                 creationCode: CLONE_FACTORY_CREATION_CODE_CANDIDATE,
                 storedDeployedAddress: LibCloneFactoryDeploy.CLONE_FACTORY_DEPLOYED_ADDRESS,
@@ -58,8 +63,7 @@ abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
                 storedRuntimeCode: CLONE_FACTORY_RUNTIME_CODE_CANDIDATE,
                 artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
                 dependencies: new DeployDependency[](0),
-                mechanism: DeployMechanism.Zoltu,
-                mechanismData: ""
+                mechanismData: LibRainDeployZoltuMechanism.mechanismData()
             }),
             unanchorableReason: ""
         });
