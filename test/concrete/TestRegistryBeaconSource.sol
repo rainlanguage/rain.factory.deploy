@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {IRegistryBeaconSourceV2} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV7.sol";
+import {IRegistryBeaconSourceV2} from "rain-factory-0.2.7/src/lib/LibICloneableFactoryV7.sol";
 
 /// Thrown for a name nothing is bound to, as the config registry does.
 error TestNameNotRegistered(address authority, bytes32 name);

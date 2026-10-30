@@ -7,10 +7,10 @@ pragma solidity =0.8.25;
 // redeclares them, so each tag must name the declaring interface and it must be
 // in scope here. `ICloneableFactoryV4` documents `cloneDeterministicOpenSalt`
 // and its predictor; no current rain-factory file re-exports it.
-import {ICloneableFactoryV3} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV5.sol";
-import {ICloneableFactoryV5, ICloneableFactoryV7} from "rain-factory-0.2.6/src/interface/ICloneableFactoryV7.sol";
-import {LibICloneableFactoryV5} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV5.sol";
-import {LibICloneableFactoryV7} from "rain-factory-0.2.6/src/lib/LibICloneableFactoryV7.sol";
+import {ICloneableFactoryV3} from "rain-factory-0.2.7/src/lib/LibICloneableFactoryV5.sol";
+import {ICloneableFactoryV5, ICloneableFactoryV7} from "rain-factory-0.2.7/src/interface/ICloneableFactoryV7.sol";
+import {LibICloneableFactoryV5} from "rain-factory-0.2.7/src/lib/LibICloneableFactoryV5.sol";
+import {LibICloneableFactoryV7} from "rain-factory-0.2.7/src/lib/LibICloneableFactoryV7.sol";
 
 /// @title CloneFactory
 /// @notice The deployed concrete `ICloneableFactoryV7`: every function is a
