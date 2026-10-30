@@ -272,8 +272,8 @@ library LibCloneFactoryReleased {
             storedRuntimeCode: CloneFactory_0_2_4_RUNTIME_CODE,
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_4_DEPENDENCIES, (DeployDependency[])),
-            mechanism: DeployMechanism.Zoltu,
-            mechanismData: ""
+            mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
+            networks: new string[](0)
         });
         return suites;
     }
