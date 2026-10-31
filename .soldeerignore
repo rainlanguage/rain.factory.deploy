@@ -1,7 +1,6 @@
 /audit
 /cache
 CLAUDE.md
-.coderabbitai.yaml
 /dependencies
 .DS_Store
 .env.example
