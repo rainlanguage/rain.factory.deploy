@@ -43,6 +43,8 @@ fs_permissions = [
   # nothing would install what it staged.
   { access = "read", path = "./script/build.sh" },
   { access = "read-write", path = "./src" },
+  # `checkDispatchChoicesAreTheSuiteKeys` reads the dispatch options.
+  { access = "read", path = "./.github/workflows/manual-sol-artifacts.yaml" },
 ]
 libs = ["dependencies"]
 
