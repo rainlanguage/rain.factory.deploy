@@ -21,6 +21,7 @@ on:
           - clone-factory@0_2_2
           - clone-factory@0_2_3
           - clone-factory@0_2_4
+          - clone-factory@0_2_5
 jobs:
   deploy:
     uses: rainlanguage/rainix/.github/workflows/rainix-manual-sol-artifacts.yaml@main
