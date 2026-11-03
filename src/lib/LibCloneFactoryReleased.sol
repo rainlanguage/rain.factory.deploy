@@ -149,7 +149,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_1_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[1] = DeploySuite({
             suite: "clone-factory@0_1_9",
@@ -160,7 +161,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_9_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[2] = DeploySuite({
             suite: "clone-factory@0_1_10",
@@ -171,7 +173,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_10_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[3] = DeploySuite({
             suite: "clone-factory@0_1_11",
@@ -182,7 +185,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_11_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[4] = DeploySuite({
             suite: "clone-factory@0_1_12",
@@ -193,7 +197,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_12_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[5] = DeploySuite({
             suite: "clone-factory@0_1_13",
@@ -204,7 +209,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_13_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[6] = DeploySuite({
             suite: "clone-factory@0_1_14",
@@ -215,7 +221,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_14_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[7] = DeploySuite({
             suite: "clone-factory@0_1_15",
@@ -226,7 +233,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_1_15_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[8] = DeploySuite({
             suite: "clone-factory@0_2_0",
@@ -237,7 +245,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_0_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[9] = DeploySuite({
             suite: "clone-factory@0_2_1",
@@ -248,7 +257,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_1_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[10] = DeploySuite({
             suite: "clone-factory@0_2_2",
@@ -259,7 +269,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_2_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[11] = DeploySuite({
             suite: "clone-factory@0_2_3",
@@ -270,7 +281,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_3_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[12] = DeploySuite({
             suite: "clone-factory@0_2_4",
@@ -281,7 +293,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_4_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         suites[13] = DeploySuite({
             suite: "clone-factory@0_2_5",
@@ -292,7 +305,8 @@ library LibCloneFactoryReleased {
             artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
             dependencies: abi.decode(CloneFactory_0_2_5_DEPENDENCIES, (DeployDependency[])),
             mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
-            networks: new string[](0)
+            networks: new string[](0),
+            describedByMeta: ""
         });
         return suites;
     }
