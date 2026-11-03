@@ -8,9 +8,9 @@ import {
     DeployDependency,
     DeploySuite,
     RainDeploySuitesBase
-} from "rain-deploy-0.1.29/src/abstract/RainDeploySuitesBase.sol";
-import {LibRainDeployDeclaration} from "rain-deploy-0.1.29/src/lib/LibRainDeployDeclaration.sol";
-import {LibRainDeployZoltuMechanism} from "rain-deploy-0.1.29/src/lib/LibRainDeployZoltuMechanism.sol";
+} from "rain-deploy-0.1.30/src/abstract/RainDeploySuitesBase.sol";
+import {LibRainDeployDeclaration} from "rain-deploy-0.1.30/src/lib/LibRainDeployDeclaration.sol";
+import {LibRainDeployZoltuMechanism} from "rain-deploy-0.1.30/src/lib/LibRainDeployZoltuMechanism.sol";
 import {CloneFactory} from "../concrete/CloneFactory.sol";
 import {
     CREATION_CODE as CLONE_FACTORY_CREATION_CODE_CANDIDATE,
@@ -63,7 +63,8 @@ abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
                 storedRuntimeCode: CLONE_FACTORY_RUNTIME_CODE_CANDIDATE,
                 artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
                 dependencies: new DeployDependency[](0),
-                mechanismData: LibRainDeployZoltuMechanism.mechanismData()
+                mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
+                describedByMeta: ""
             }),
             unanchorableReason: ""
         });
