@@ -63,7 +63,8 @@ abstract contract CloneFactoryDeploySuites is RainDeploySuitesBase {
                 storedRuntimeCode: CLONE_FACTORY_RUNTIME_CODE_CANDIDATE,
                 artifactPath: "src/concrete/CloneFactory.sol:CloneFactory",
                 dependencies: new DeployDependency[](0),
-                mechanismData: LibRainDeployZoltuMechanism.mechanismData()
+                mechanismData: LibRainDeployZoltuMechanism.mechanismData(),
+                describedByMeta: ""
             }),
             unanchorableReason: ""
         });
