@@ -28,10 +28,10 @@ integrity = "71aebae9dd09c82bb23c16f55ebd823a0d7e598e0ce73a3ba5cf18a10c286f29"
 
 [[dependencies]]
 name = "rain-factory"
-version = "0.2.12"
-url = "https://soldeer-revisions.s3.amazonaws.com/rain-factory/0_2_12_14-11-2026_22:54:16_rain.zip"
-checksum = "8088e5e36192f4d45e4ee6e51bbcdd6047f6889b5d338adb668b576bd6333e20"
-integrity = "48574816e7017703e824f1bb5f3bddd9a2cc2b7cf960598d12dcb7494e56ac42"
+version = "0.2.13"
+url = "https://soldeer-revisions.s3.amazonaws.com/rain-factory/0_2_13_15-11-2026_13:04:36_rain.zip"
+checksum = "e88623c0abfe05da09b5f5fe6ae98fd4abf02cb9dbc2d8819dfe6f4df1b02732"
+integrity = "bcbb95e803b98efd888df0e8ba95a9ab48afb89476411d8a54176cfa4ead9be5"
 
 [[dependencies]]
 name = "rain-metadata"
