@@ -8,9 +8,9 @@ import {
     DeployDependency,
     DeploySuite,
     RainDeploySuitesBase
-} from "rain-deploy-0.1.35/src/abstract/RainDeploySuitesBase.sol";
-import {LibRainDeployDeclaration} from "rain-deploy-0.1.35/src/lib/LibRainDeployDeclaration.sol";
-import {LibRainDeployZoltuMechanism} from "rain-deploy-0.1.35/src/lib/LibRainDeployZoltuMechanism.sol";
+} from "rain-deploy-0.1.36/src/abstract/RainDeploySuitesBase.sol";
+import {LibRainDeployDeclaration} from "rain-deploy-0.1.36/src/lib/LibRainDeployDeclaration.sol";
+import {LibRainDeployZoltuMechanism} from "rain-deploy-0.1.36/src/lib/LibRainDeployZoltuMechanism.sol";
 import {CloneFactory} from "../concrete/CloneFactory.sol";
 import {
     CREATION_CODE as CLONE_FACTORY_CREATION_CODE_CANDIDATE,
