@@ -36,12 +36,9 @@ fs_permissions = [
   # is granted here.
   { access = "read", path = "./foundry.toml" },
   { access = "read", path = "./.env.example" },
-  # Where the spliced files are staged, for `script/build.sh` to install over
-  # the two above. Gitignored; the hook removes it once installed.
+  # Where the spliced files are staged, for rainix to install over the two
+  # above. Gitignored.
   { access = "read-write", path = "./.staged-config" },
-  # `writeStagedConfig` refuses a repo with no build hook, which is a repo where
-  # nothing would install what it staged.
-  { access = "read", path = "./script/build.sh" },
   { access = "read-write", path = "./src" },
   # `checkDispatchChoicesAreTheSuiteKeys` reads the dispatch options.
   { access = "read", path = "./.github/workflows/manual-sol-artifacts.yaml" },
